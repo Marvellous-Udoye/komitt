@@ -28,7 +28,7 @@ const features = [
   {
     icon: Target,
     title: "Goal maps that stay usable",
-    body: "High-level goals become milestones and tasks your n8n workflow can store, schedule, and adapt.",
+    body: "High-level goals become milestones and tasks that feel realistic, scheduled, and easy to review.",
     tone: "mint",
   },
   {
@@ -40,8 +40,8 @@ const features = [
   {
     icon: Bot,
     title: "Coaching from behavior",
-    body: "Commit can spot postponed tasks, low-consistency windows, and missed deadlines before they become patterns.",
-    tone: "teal",
+    body: "Komitt can spot postponed tasks, low-consistency windows, and missed deadlines before they become patterns.",
+    tone: "cream",
   },
   {
     icon: LineChart,
@@ -84,20 +84,20 @@ export default function Home() {
           <span className="highlight">daily proof</span> of progress.
         </h1>
         <p className="mt-7 max-w-2xl text-lg leading-8 sm:text-xl">
-          Commit is an accountability platform for people who want their plans
-          broken down, scheduled, checked daily, and adjusted by AI through your
-          n8n automation backend.
+          Komitt is an accountability platform for people who want their plans
+          broken down, scheduled, checked daily, and adjusted by AI before
+          momentum slips.
         </p>
         <div className="mt-9 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
           <Link className="btn-primary h-14 w-full px-9 sm:w-auto" href="/signup">
             <ArrowRight size={18} /> Create my plan
           </Link>
-          <Link className="btn-pastel h-14 w-full px-7 sm:w-auto" href="/dashboard">
+          <Link className="btn-secondary h-14 w-full px-7 sm:w-auto" href="/dashboard">
             View dashboard
           </Link>
         </div>
         <p className="mt-3 text-sm text-forest-ink/55">
-          Supabase Auth + n8n webhooks + OpenAI coaching.
+          No complicated setup. Just a daily loop that keeps you honest.
         </p>
       </section>
 
@@ -107,9 +107,9 @@ export default function Home() {
             <p className="label">Execution loop</p>
             <h2 className="section-title">One connected system, split into clean workflows.</h2>
             <p className="mt-5 max-w-xl text-base leading-7">
-              The website only talks to n8n. n8n verifies the Supabase user,
-              writes to Postgres, asks OpenAI for coaching, and sends email
-              reminders.
+              Komitt keeps each part of accountability clear: capture the goal,
+              create the plan, remind the user, collect the check-in, coach the
+              next move, and update progress automatically.
             </p>
           </div>
           <div className="workflow-board">
@@ -162,9 +162,9 @@ export default function Home() {
       <section className="mx-auto max-w-6xl px-4 py-20">
         <div className="closing-panel">
           <CheckCircle2 size={30} />
-          <h2>Ready to commit to the next execution cycle?</h2>
+          <h2>Ready to start the next execution cycle?</h2>
           <Link className="btn-primary h-12 px-6" href="/signup">
-            <ArrowRight size={17} /> Open Commit
+            <ArrowRight size={17} /> Open Komitt
           </Link>
         </div>
       </section>

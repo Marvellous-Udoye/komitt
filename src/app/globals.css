@@ -72,7 +72,7 @@ textarea {
 
 .btn-primary,
 .btn-outline,
-.btn-pastel,
+.btn-secondary,
 .icon-button {
   display: inline-flex;
   align-items: center;
@@ -94,19 +94,28 @@ textarea {
   color: #1a3300;
 }
 
-.btn-pastel {
+.btn-secondary {
   border-color: #1a3300;
-  background: #a8e5e5;
+  background: #fcfaf5;
   color: #1a3300;
   font-weight: 700;
 }
 
 .btn-primary:hover,
 .btn-outline:hover,
-.btn-pastel:hover,
+.btn-secondary:hover,
 .icon-button:hover {
   transform: translateY(-1px);
   box-shadow: rgba(0, 0, 0, 0.1) 0 1px 3px 0, rgba(0, 0, 0, 0.1) 0 1px 2px -1px;
+}
+
+.btn-primary,
+.btn-outline,
+.btn-secondary,
+.icon-button,
+button,
+a[href] {
+  cursor: pointer;
 }
 
 .icon-button {
@@ -134,10 +143,10 @@ textarea {
 
 .highlight {
   display: inline;
-  background: #ffe95c;
+  background: linear-gradient(transparent 45%, #ffe95c 45%, #ffe95c 88%, transparent 88%);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  padding: 0 0.08em;
+  padding: 0 0.06em;
 }
 
 .section-title {

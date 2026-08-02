@@ -21,31 +21,29 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://commit.coach"),
   title: {
-    default: "Commit | AI accountability coach",
-    template: "%s | Commit",
+    default: "Komitt | AI accountability coach",
+    template: "%s | Komitt",
   },
   description:
-    "Commit turns ambitious goals into scheduled milestones, daily check-ins, AI coaching, and progress dashboards powered by n8n and Supabase.",
+    "Komitt turns ambitious goals into clear plans, daily check-ins, personalized coaching, and progress dashboards that keep execution moving.",
   keywords: [
     "AI accountability coach",
     "goal tracking",
-    "n8n automation",
-    "Supabase",
     "daily check-ins",
     "execution platform",
   ],
   openGraph: {
-    title: "Commit | AI accountability coach",
+    title: "Komitt | AI accountability coach",
     description:
       "Set goals, stay accountable, reflect daily, and adapt your execution plan with AI.",
-    url: "https://commit.coach",
-    siteName: "Commit",
+    url: "https://komitt.coach",
+    siteName: "Komitt",
     images: [
       {
         url: "/og.svg",
         width: 1200,
         height: 630,
-        alt: "Commit AI accountability dashboard preview",
+        alt: "Komitt AI accountability dashboard preview",
       },
     ],
     locale: "en_US",
@@ -53,7 +51,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Commit | AI accountability coach",
+    title: "Komitt | AI accountability coach",
     description:
       "An AI execution platform for goals, tasks, check-ins, and coaching feedback.",
     images: ["/og.svg"],
