@@ -2,5 +2,7 @@
   <rect width="512" height="512" rx="72" fill="#FCE95C"/>
   <path d="M139 181C162 136 224 118 276 137C333 158 368 211 354 275C340 340 282 375 221 365C168 356 130 316 126 265" stroke="#1A3300" stroke-width="32" stroke-linecap="round"/>
   <path d="M214 258L251 296L329 204" stroke="#1A3300" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M112 398C177 430 301 437 389 380" stroke="#1A3300" stroke-width="24" stroke-linecap="round" opacity=".35"/>
+  <path d="M109 398C174 430 304 437 392 380" stroke="#1A3300" stroke-width="24" stroke-linecap="round" opacity=".35"/>
+  <path d="M152 162L152 335" stroke="#1A3300" stroke-width="28" stroke-linecap="round"/>
+  <path d="M246 162L169 250L252 335" stroke="#1A3300" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

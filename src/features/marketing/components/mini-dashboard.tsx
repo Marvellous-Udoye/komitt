@@ -20,7 +20,7 @@ export function MiniDashboard() {
           <strong>4</strong>
           <span>active goals</span>
         </div>
-        <div className="metric-note bg-sticky-note-teal">
+        <div className="metric-note bg-cream-paper">
           <CheckCircle2 size={19} />
           <strong>31</strong>
           <span>tasks done</span>

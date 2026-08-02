@@ -3,15 +3,25 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
+  BarChart3,
+  Bell,
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
   Flame,
-  type LucideIcon,
+  Goal,
+  Home,
+  LayoutDashboard,
   LogOut,
+  Menu,
   Plus,
+  Search,
+  Settings,
+  Sparkles,
   Target,
   WandSparkles,
+  X,
+  type LucideIcon,
 } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { clearSession, getStoredSession } from "@/lib/auth-session";
@@ -46,17 +56,34 @@ const demoStats: DashboardStats = {
     {
       id: "demo",
       content:
-        "You are most consistent on days where tasks are under 45 minutes. Keep tomorrow's first task small and schedule it before noon.",
+        "You are most consistent when the first task is specific and short. Start tomorrow with one clear 30-minute action before opening messages.",
       created_at: "Today",
     },
   ],
 };
+
+const navItems = [
+  { label: "Overview", icon: LayoutDashboard },
+  { label: "Goals", icon: Target },
+  { label: "Tasks", icon: CheckCircle2 },
+  { label: "Calendar", icon: CalendarDays },
+  { label: "Insights", icon: Sparkles },
+];
+
+const todayTasks = [
+  { title: "Draft landing page hero", goal: "Launch Startup", time: "35 min", status: "In progress" },
+  { title: "React state practice", goal: "Learn React", time: "45 min", status: "Queued" },
+  { title: "Evening workout", goal: "Lose 10kg", time: "30 min", status: "Queued" },
+];
 
 export function DashboardShell() {
   const [stats, setStats] = useState<DashboardStats>(demoStats);
   const [status, setStatus] = useState<"idle" | "loading" | "saving">("idle");
   const [notice, setNotice] = useState("");
   const [token, setToken] = useState<string>();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [range, setRange] = useState("This week");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const session = getStoredSession();
@@ -67,11 +94,18 @@ export function DashboardShell() {
     setStatus("loading");
     getDashboard(session.accessToken)
       .then((data) => setStats({ ...demoStats, ...data }))
-      .catch(() => setNotice("Dashboard is showing demo data until n8n responds."))
+      .catch(() => setNotice("We could not refresh live data. Showing your latest available dashboard."))
       .finally(() => setStatus("idle"));
   }, []);
 
   const chartData = useMemo(() => stats.weeklyTasks ?? demoStats.weeklyTasks ?? [], [stats]);
+  const filteredTasks = useMemo(() => {
+    const normalized = searchQuery.trim().toLowerCase();
+    if (!normalized) return todayTasks;
+    return todayTasks.filter((task) =>
+      `${task.title} ${task.goal} ${task.status}`.toLowerCase().includes(normalized),
+    );
+  }, [searchQuery]);
 
   async function handleGoalSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,10 +118,10 @@ export function DashboardShell() {
         title: String(data.get("title") ?? ""),
         description: String(data.get("description") ?? ""),
       });
-      setNotice("Goal sent to n8n. AI breakdown should appear after the workflow saves it.");
+      setNotice("Goal created. Your plan is being prepared.");
       event.currentTarget.reset();
     } catch {
-      setNotice("Goal saved in demo mode. Configure n8n env vars to send it live.");
+      setNotice("Goal drafted locally. Connect your live workspace to save it.");
     } finally {
       setStatus("idle");
     }
@@ -104,10 +138,10 @@ export function DashboardShell() {
         completion_status: String(data.get("completion_status") ?? "partially") as "yes" | "partially" | "no",
         reflection: String(data.get("reflection") ?? ""),
       });
-      setNotice(response.feedback ?? "Check-in sent. Your coaching email is on the way.");
+      setNotice(response.feedback ?? "Check-in submitted. Your coach will adapt the next step.");
       event.currentTarget.reset();
     } catch {
-      setNotice("Check-in captured in demo mode. Connect n8n to trigger AI feedback.");
+      setNotice("Check-in saved for this session. Connect your live workspace to sync it.");
     } finally {
       setStatus("idle");
     }
@@ -119,96 +153,121 @@ export function DashboardShell() {
   }
 
   return (
-    <main className="min-h-screen bg-cream-paper text-forest-ink">
-      <header className="border-b border-pencil-gray/70">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+    <main className="komitt-app-shell">
+      <aside className="komitt-sidebar">
+        <div className="sidebar-top">
           <BrandLogo />
-          <div className="flex items-center gap-2">
-            <Link className="btn-outline h-10 px-4 text-sm" href="/">
-              Site
-            </Link>
-            <button className="icon-button" onClick={signOut} title="Log out">
-              <LogOut size={17} />
-            </button>
-          </div>
+          <button className="icon-button h-9 w-9" title="Collapse navigation">
+            <Menu size={16} />
+          </button>
         </div>
-      </header>
-
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 lg:grid-cols-[0.76fr_1.24fr]">
-        <aside className="space-y-6">
-          <section className="dashboard-panel bg-highlighter-yellow">
-            <p className="label">Commit today</p>
-            <h1 className="mt-3 text-4xl font-bold leading-tight">
-              One plan. One check-in. No loose ends.
-            </h1>
-            <p className="mt-4 text-base leading-7">
-              Create a goal, let n8n break it into milestones, and keep the
-              loop moving with daily reflection.
-            </p>
-          </section>
-
-          <form className="dashboard-panel" onSubmit={handleGoalSubmit}>
-            <div className="flex items-center gap-2">
-              <Plus size={20} />
-              <h2 className="text-xl font-bold">Create goal</h2>
-            </div>
-            <input className="form-input mt-5" name="title" placeholder="Launch my startup" required />
-            <textarea
-              className="form-input mt-3 min-h-28 resize-none"
-              name="description"
-              placeholder="Describe the outcome, deadline, and constraints."
-              required
-            />
-            <button className="btn-primary mt-4 h-12 w-full justify-center" disabled={status === "saving"}>
-              <WandSparkles size={17} /> Send to AI breakdown
+        <nav className="sidebar-nav">
+          {navItems.map((item, index) => (
+            <button className={index === 0 ? "active" : ""} key={item.label}>
+              <item.icon size={17} />
+              <span>{item.label}</span>
             </button>
-          </form>
+          ))}
+        </nav>
+        <div className="sidebar-coach">
+          <p className="label">Coach</p>
+          <strong>5 day streak</strong>
+          <span>Keep today&apos;s first task under 45 minutes.</span>
+        </div>
+        <div className="sidebar-footer">
+          <button title="Settings">
+            <Settings size={17} /> <span>Settings</span>
+          </button>
+          <button onClick={signOut} title="Sign out">
+            <LogOut size={17} /> <span>Sign out</span>
+          </button>
+        </div>
+      </aside>
 
-          <form className="dashboard-panel" onSubmit={handleCheckinSubmit}>
-            <div className="flex items-center gap-2">
-              <CheckCircle2 size={20} />
-              <h2 className="text-xl font-bold">Daily check-in</h2>
-            </div>
-            <div className="mt-5 grid grid-cols-3 gap-2">
-              {["yes", "partially", "no"].map((value) => (
-                <label className="check-option" key={value}>
-                  <input name="completion_status" type="radio" value={value} defaultChecked={value === "partially"} />
-                  <span>{value}</span>
-                </label>
-              ))}
-            </div>
-            <textarea
-              className="form-input mt-3 min-h-24 resize-none"
-              name="reflection"
-              placeholder="What helped or blocked you today?"
+      <div className="komitt-main">
+        <header className="dashboard-topbar">
+          <button className="mobile-menu-button" onClick={() => setMobileMenuOpen(true)} title="Open menu">
+            <Menu size={20} />
+          </button>
+          <div className="dashboard-search">
+            <Search size={17} />
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search goals, tasks, or check-ins"
             />
-            <button className="btn-pastel mt-4 h-12 w-full justify-center" disabled={status === "saving"}>
-              <ArrowRight size={17} /> Submit check-in
+          </div>
+          <div className="topbar-actions">
+            <label className="select-shell">
+              <span>{range}</span>
+              <select value={range} onChange={(event) => setRange(event.target.value)} title="Select dashboard range">
+                <option>This week</option>
+                <option>This month</option>
+                <option>Last 30 days</option>
+              </select>
+              <ChevronDown size={15} />
+            </label>
+            <button className="icon-button" title="Notifications">
+              <Bell size={17} />
             </button>
-          </form>
-        </aside>
+            <Link className="btn-outline h-10 px-4 text-sm" href="/">
+              <Home size={16} /> Site
+            </Link>
+          </div>
+        </header>
 
-        <section className="space-y-6">
-          {notice ? <div className="notice">{notice}</div> : null}
-          <div className="grid gap-4 md:grid-cols-4">
-            <Metric icon={Target} label="Goals completed" value={stats.goalsCompleted} tone="mint" />
-            <Metric icon={CheckCircle2} label="Tasks completed" value={stats.tasksCompleted} tone="teal" />
-            <Metric icon={CalendarDays} label="Weekly consistency" value={`${stats.weeklyConsistency}%`} tone="blush" />
-            <Metric icon={Flame} label="Current streak" value={`${stats.currentStreak}d`} tone="yellow" />
+        {mobileMenuOpen ? (
+          <div className="mobile-overlay">
+            <div className="mobile-panel">
+              <div className="sidebar-top">
+                <BrandLogo />
+                <button className="icon-button h-9 w-9" onClick={() => setMobileMenuOpen(false)} title="Close menu">
+                  <X size={16} />
+                </button>
+              </div>
+              <nav className="sidebar-nav">
+                {navItems.map((item, index) => (
+                  <button className={index === 0 ? "active" : ""} key={item.label} onClick={() => setMobileMenuOpen(false)}>
+                    <item.icon size={17} />
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </div>
+        ) : null}
+
+        <section className="dashboard-content">
+          <div className="dashboard-heading">
+            <div>
+              <p className="label">Overview</p>
+              <h1>Execution dashboard</h1>
+              <span>Track your goals, today&apos;s tasks, consistency, and coaching loop.</span>
+            </div>
+            <button className="btn-primary h-11 px-5" onClick={() => document.getElementById("new-goal")?.scrollIntoView({ behavior: "smooth" })}>
+              <Plus size={17} /> New goal
+            </button>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-            <section className="dashboard-panel">
-              <div className="flex items-center justify-between gap-4">
+          {notice ? <div className="notice">{notice}</div> : null}
+
+          <div className="dashboard-stat-grid">
+            <Metric icon={Goal} label="Goals completed" value={stats.goalsCompleted} />
+            <Metric icon={CheckCircle2} label="Tasks completed" value={stats.tasksCompleted} />
+            <Metric icon={BarChart3} label="Weekly consistency" value={`${stats.weeklyConsistency}%`} />
+            <Metric icon={Flame} label="Current streak" value={`${stats.currentStreak}d`} />
+          </div>
+
+          <div className="dashboard-grid">
+            <section className="dashboard-card chart-card">
+              <div className="card-header">
                 <div>
                   <p className="label">Analytics</p>
-                  <h2 className="mt-2 text-2xl font-bold">Weekly completion</h2>
+                  <h2>Completion trend</h2>
                 </div>
-                <span className="rounded-full border border-forest-ink px-3 py-1 font-mono text-xs">
-                  {status === "loading" ? "syncing" : "live"}
-                </span>
+                <span className="status-pill">{status === "loading" ? "Syncing" : "Updated"}</span>
               </div>
-              <div className="dashboard-chart mt-8">
+              <div className="dashboard-chart">
                 {chartData.map((item) => {
                   const height = Math.round((item.completed / Math.max(item.total, 1)) * 100);
                   return (
@@ -221,36 +280,129 @@ export function DashboardShell() {
               </div>
             </section>
 
-            <section className="dashboard-panel bg-sticky-note-mint">
-              <p className="label">AI insight</p>
-              <h2 className="mt-2 text-2xl font-bold">Latest coach feedback</h2>
-              <p className="mt-5 text-base leading-7">
-                {stats.insights?.[0]?.content ?? demoStats.insights?.[0]?.content}
-              </p>
+            <section className="dashboard-card">
+              <div className="card-header">
+                <div>
+                  <p className="label">Today</p>
+                  <h2>Task queue</h2>
+                </div>
+                <span className="status-pill">{filteredTasks.length} tasks</span>
+              </div>
+              <div className="task-list">
+                {filteredTasks.map((task) => (
+                  <article className="task-row" key={task.title}>
+                    <span className="task-check" />
+                    <div>
+                      <strong>{task.title}</strong>
+                      <p>{task.goal} · {task.time}</p>
+                    </div>
+                    <em>{task.status}</em>
+                  </article>
+                ))}
+              </div>
             </section>
           </div>
 
-          <section className="dashboard-panel">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="label">Next up</p>
-                <h2 className="mt-2 text-2xl font-bold">Upcoming deadlines</h2>
-              </div>
-            </div>
-            <div className="mt-5 space-y-3">
-              {stats.upcomingDeadlines.map((task) => (
-                <div className="deadline-row" key={task.id}>
-                  <div>
-                    <strong>{task.title}</strong>
-                    <p>{task.due_date}</p>
-                  </div>
-                  <span>{task.priority}</span>
+          <div className="dashboard-grid lower">
+            <section className="dashboard-card" id="new-goal">
+              <div className="card-header">
+                <div>
+                  <p className="label">Plan</p>
+                  <h2>Create goal</h2>
                 </div>
-              ))}
-            </div>
-          </section>
+                <WandSparkles size={20} />
+              </div>
+              <form className="dashboard-form" onSubmit={handleGoalSubmit}>
+                <input className="form-input" name="title" placeholder="Launch my startup" required />
+                <textarea
+                  className="form-input min-h-24 resize-none"
+                  name="description"
+                  placeholder="Describe the outcome, deadline, and constraints."
+                  required
+                />
+                <button className="btn-primary h-11 justify-center px-5" disabled={status === "saving"}>
+                  Create plan
+                </button>
+              </form>
+            </section>
+
+            <section className="dashboard-card">
+              <div className="card-header">
+                <div>
+                  <p className="label">Reflect</p>
+                  <h2>Daily check-in</h2>
+                </div>
+                <CheckCircle2 size={20} />
+              </div>
+              <form className="dashboard-form" onSubmit={handleCheckinSubmit}>
+                <div className="check-grid">
+                  {["yes", "partially", "no"].map((value) => (
+                    <label className="check-option" key={value}>
+                      <input name="completion_status" type="radio" value={value} defaultChecked={value === "partially"} />
+                      <span>{value}</span>
+                    </label>
+                  ))}
+                </div>
+                <textarea
+                  className="form-input min-h-24 resize-none"
+                  name="reflection"
+                  placeholder="What helped or blocked you today?"
+                />
+                <button className="btn-secondary h-11 justify-center px-5" disabled={status === "saving"}>
+                  Submit check-in
+                </button>
+              </form>
+            </section>
+
+            <section className="dashboard-card">
+              <div className="card-header">
+                <div>
+                  <p className="label">Coach</p>
+                  <h2>Latest insight</h2>
+                </div>
+                <Sparkles size={20} />
+              </div>
+              <p className="insight-copy">
+                {stats.insights?.[0]?.content ?? demoStats.insights?.[0]?.content}
+              </p>
+            </section>
+
+            <section className="dashboard-card">
+              <div className="card-header">
+                <div>
+                  <p className="label">Deadlines</p>
+                  <h2>Upcoming</h2>
+                </div>
+                <CalendarDays size={20} />
+              </div>
+              <div className="deadline-list">
+                {stats.upcomingDeadlines.map((task) => (
+                  <div className="deadline-row" key={task.id}>
+                    <div>
+                      <strong>{task.title}</strong>
+                      <p>{task.due_date}</p>
+                    </div>
+                    <span>{task.priority}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
         </section>
       </div>
+
+      <button className="floating-create" onClick={() => document.getElementById("new-goal")?.scrollIntoView({ behavior: "smooth" })} title="Create goal">
+        <Plus size={24} />
+      </button>
+
+      <nav className="mobile-bottom-nav">
+        {navItems.slice(0, 4).map((item, index) => (
+          <button className={index === 0 ? "active" : ""} key={item.label} title={item.label}>
+            <item.icon size={20} />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </main>
   );
 }
@@ -259,16 +411,14 @@ function Metric({
   icon: Icon,
   label,
   value,
-  tone,
 }: {
   icon: LucideIcon;
   label: string;
   value: string | number;
-  tone: "mint" | "teal" | "blush" | "yellow";
 }) {
   return (
-    <div className={`metric-card tone-${tone}`}>
-      <Icon size={20} />
+    <div className="metric-card">
+      <Icon size={19} />
       <strong>{value}</strong>
       <span>{label}</span>
     </div>
