@@ -1,18 +1,72 @@
 <svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="630" fill="#FCFAF5"/>
-  <rect x="70" y="64" width="1060" height="502" rx="28" fill="#D5F5C2" stroke="#1A3300" stroke-width="3"/>
-  <rect x="100" y="94" width="72" height="72" rx="14" fill="#FFE95C" stroke="#1A3300" stroke-width="3"/>
-  <text x="118" y="141" fill="#1A3300" font-family="Arial Black, Arial" font-size="34">ko</text>
-  <text x="198" y="144" fill="#1A3300" font-family="Inter, Arial" font-size="38" font-weight="700">Komitt</text>
-  <text x="100" y="284" fill="#1A3300" font-family="Arial Black, Arial" font-size="82" font-weight="900" letter-spacing="3">AI accountability</text>
-  <rect x="101" y="310" width="475" height="86" fill="#FFE95C"/>
-  <text x="112" y="381" fill="#1A3300" font-family="Arial Black, Arial" font-size="82" font-weight="900" letter-spacing="3">that follows up.</text>
-  <text x="104" y="454" fill="#1A3300" font-family="Inter, Arial" font-size="28">Goals, tasks, check-ins, coaching, and progress dashboards.</text>
-  <rect x="762" y="166" width="280" height="300" rx="18" fill="#FCFAF5" stroke="#1A3300" stroke-width="3"/>
-  <rect x="798" y="372" width="30" height="50" rx="6" fill="#1A3300"/>
-  <rect x="850" y="320" width="30" height="102" rx="6" fill="#1A3300"/>
-  <rect x="902" y="270" width="30" height="152" rx="6" fill="#1A3300"/>
-  <rect x="954" y="232" width="30" height="190" rx="6" fill="#1A3300"/>
-  <circle cx="844" cy="218" r="44" fill="#A8E5E5" stroke="#1A3300" stroke-width="3"/>
-  <path d="M824 219L840 235L866 199" stroke="#1A3300" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="-0.1" r="1.1">
+      <stop offset="0" stop-color="#161718"/>
+      <stop offset="0.6" stop-color="#08090A"/>
+      <stop offset="1" stop-color="#08090A"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="0" y="0" width="140" height="2" fill="#E4F222"/>
+  <rect x="140" y="0" width="1060" height="2" fill="#23252A"/>
+
+  <rect x="88" y="56" width="44" height="44" rx="10" fill="#0F1011" stroke="#FFFFFF" stroke-width="2"/>
+  <path d="M102 84L116 98L136 70" stroke="#E4F222" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="148" y="90" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial" font-size="34" font-weight="500" letter-spacing="-0.8">Komitt</text>
+
+  <text x="88" y="224" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial" font-size="58" font-weight="500" letter-spacing="-1.3">Turn your goals into</text>
+  <text x="88" y="292" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial" font-size="58" font-weight="500" letter-spacing="-1.3">daily proof of progress.</text>
+  <text x="88" y="344" fill="#8A8F98" font-family="Inter, Segoe UI, Arial" font-size="21" letter-spacing="-0.2">Set a goal. Get a plan. Check in daily. Let AI coach the next move.</text>
+
+  <rect x="88" y="392" width="1024" height="156" rx="18" fill="#0F1011" stroke="#23252A" stroke-width="1.5"/>
+  <circle cx="122" cy="428" r="4" fill="#E4F222"/>
+  <text x="140" y="434" fill="#E5E5E6" font-family="Inter, Segoe UI, Arial" font-size="18" font-weight="500" letter-spacing="-0.3">Execution dashboard</text>
+  <rect x="852" y="404" width="128" height="32" rx="999" fill="#E4F222" opacity="0.12"/>
+  <text x="868" y="425" fill="#E4F222" font-family="Inter, Segoe UI, Arial" font-size="14" font-weight="500">5 day streak</text>
+
+  <text x="122" y="512" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial" font-size="32" font-weight="500" letter-spacing="-1">3</text>
+  <text x="122" y="534" fill="#8A8F98" font-family="Inter, Segoe UI, Arial" font-size="13">goals done</text>
+  <text x="258" y="512" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial" font-size="32" font-weight="500" letter-spacing="-1">31</text>
+  <text x="258" y="534" fill="#8A8F98" font-family="Inter, Segoe UI, Arial" font-size="13">tasks done</text>
+  <text x="382" y="512" fill="#FFFFFF" font-family="Inter, Segoe UI, Arial" font-size="32" font-weight="500" letter-spacing="-1">86%</text>
+  <text x="382" y="534" fill="#8A8F98" font-family="Inter, Segoe UI, Arial" font-size="13">consistency</text>
+
+  <g>
+    <rect x="726" y="430" width="20" height="58" rx="4" fill="#23252A"/>
+    <rect x="726" y="490" width="20" height="52" rx="4" fill="#E4F222"/>
+    <text x="726" y="524" fill="#62666D" font-family="monospace" font-size="11">M</text>
+  </g>
+  <g>
+    <rect x="766" y="430" width="20" height="50" rx="4" fill="#23252A"/>
+    <rect x="766" y="476" width="20" height="46" rx="4" fill="#E4F222"/>
+    <text x="766" y="524" fill="#62666D" font-family="monospace" font-size="11">T</text>
+  </g>
+  <g>
+    <rect x="806" y="430" width="20" height="66" rx="4" fill="#23252A"/>
+    <rect x="806" y="488" width="20" height="34" rx="4" fill="#8A8F98"/>
+    <text x="806" y="524" fill="#62666D" font-family="monospace" font-size="11">W</text>
+  </g>
+  <g>
+    <rect x="846" y="430" width="20" height="46" rx="4" fill="#23252A"/>
+    <rect x="846" y="472" width="20" height="40" rx="4" fill="#E4F222"/>
+    <text x="846" y="524" fill="#62666D" font-family="monospace" font-size="11">T</text>
+  </g>
+  <g>
+    <rect x="886" y="430" width="20" height="56" rx="4" fill="#23252A"/>
+    <rect x="886" y="486" width="20" height="48" rx="4" fill="#8A8F98"/>
+    <text x="886" y="524" fill="#62666D" font-family="monospace" font-size="11">F</text>
+  </g>
+  <g>
+    <rect x="926" y="430" width="20" height="52" rx="4" fill="#23252A"/>
+    <rect x="926" y="478" width="20" height="44" rx="4" fill="#E4F222"/>
+    <text x="926" y="524" fill="#62666D" font-family="monospace" font-size="11">S</text>
+  </g>
+  <g>
+    <rect x="966" y="430" width="20" height="62" rx="4" fill="#23252A"/>
+    <rect x="966" y="488" width="20" height="36" rx="4" fill="#8A8F98"/>
+    <text x="966" y="524" fill="#62666D" font-family="monospace" font-size="11">S</text>
+  </g>
+
+  <text x="88" y="606" fill="#62666D" font-family="monospace, Consolas" font-size="15">komitt.vercel.app</text>
+  <text x="988" y="606" fill="#62666D" font-family="Inter, Segoe UI, Arial" font-size="13">AI accountability for what you're building</text>
 </svg>

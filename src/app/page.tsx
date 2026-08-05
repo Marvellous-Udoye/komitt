@@ -7,8 +7,37 @@ import { PlanMock } from "@/features/marketing/components/plan-mock";
 import { CheckinMock } from "@/features/marketing/components/checkin-mock";
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Komitt",
+    url: "https://komitt.coach",
+    applicationCategory: "ProductivityApplication",
+    operatingSystem: "Web",
+    description:
+      "Komitt is an AI accountability coach that turns ambitious goals into clear plans, daily check-ins, personalized coaching, and progress dashboards.",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Komitt",
+      url: "https://komitt.coach",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://komitt.coach/icon.svg",
+      },
+    },
+  };
+
   return (
     <main className="min-h-screen bg-void text-mist">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <LandingNav />
 
       <section className="relative pt-32 sm:pt-40">

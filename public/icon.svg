@@ -1,8 +1,12 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="72" fill="#FCE95C"/>
-  <path d="M139 181C162 136 224 118 276 137C333 158 368 211 354 275C340 340 282 375 221 365C168 356 130 316 126 265" stroke="#1A3300" stroke-width="32" stroke-linecap="round"/>
-  <path d="M214 258L251 296L329 204" stroke="#1A3300" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M109 398C174 430 304 437 392 380" stroke="#1A3300" stroke-width="24" stroke-linecap="round" opacity=".35"/>
-  <path d="M152 162L152 335" stroke="#1A3300" stroke-width="28" stroke-linecap="round"/>
-  <path d="M246 162L169 250L252 335" stroke="#1A3300" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="0.18" r="0.9">
+      <stop offset="0" stop-color="#161718"/>
+      <stop offset="0.58" stop-color="#08090A"/>
+      <stop offset="1" stop-color="#08090A"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect x="86" y="86" width="340" height="340" rx="80" fill="#0F1011" stroke="#FFFFFF" stroke-width="12"/>
+  <path d="M168 272L232 336L348 192" stroke="#E4F222" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

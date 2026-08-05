@@ -16,7 +16,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://komitt.coach"),
+  metadataBase: new URL("https://komitt.vercel.app"),
+  applicationName: "Komitt",
   title: {
     default: "Komitt | AI accountability coach",
     template: "%s | Komitt",
@@ -28,37 +29,49 @@ export const metadata: Metadata = {
     "goal tracking",
     "daily check-ins",
     "execution platform",
+    "AI coach",
+    "habit tracking",
   ],
+  authors: [{ name: "Komitt" }],
+  category: "productivity",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://komitt.vercel.app",
+    siteName: "Komitt",
     title: "Komitt | AI accountability coach",
     description:
-      "Set goals, stay accountable, reflect daily, and adapt your execution plan with AI.",
-    url: "https://komitt.coach",
-    siteName: "Komitt",
-    images: [
-      {
-        url: "/og.svg",
-        width: 1200,
-        height: 630,
-        alt: "Komitt AI accountability dashboard preview",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
+      "Set goals, stay accountable, reflect daily, and adapt your execution plan with AI. Turn your goals into daily proof of progress.",
   },
   twitter: {
     card: "summary_large_image",
+    site: "@komitt",
+    creator: "@komitt",
     title: "Komitt | AI accountability coach",
     description:
       "An AI execution platform for goals, tasks, check-ins, and coaching feedback.",
-    images: ["/og.svg"],
   },
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico" },
+      { url: "/favicon.ico", sizes: "48x48" },
     ],
-    apple: "/icon.svg",
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
   },
 };
 

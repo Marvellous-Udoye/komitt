@@ -27,7 +27,7 @@ export function ProductScreenshot() {
         </div>
         <div className="flex items-center gap-1 rounded-md bg-obsidian px-2 py-1">
           <span className="size-1.5 rounded-full bg-acid-lime" />
-          <span className="font-mono text-[11px] text-mist">komitt.coach/dashboard</span>
+          <span className="font-mono text-[11px] text-mist">komitt.vercel.app/dashboard</span>
         </div>
         <span className="rounded-md border border-graphite px-2 py-1 font-mono text-[11px] text-fog">
           ⌘K
