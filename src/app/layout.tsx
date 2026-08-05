@@ -1,25 +1,22 @@
-import type { Metadata } from "next";
-import { Bricolage_Grotesque, Inter, Roboto_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage-grotesque",
-  subsets: ["latin"],
-  weight: ["800"],
-});
-
 const inter = Inter({
-  variable: "--font-inter",
+  variable: "--font-inter-variable",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-berkeley-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://commit.coach"),
+  metadataBase: new URL("https://komitt.coach"),
   title: {
     default: "Komitt | AI accountability coach",
     template: "%s | Komitt",
@@ -65,17 +62,22 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#08090a",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body
-        className={`${bricolage.variable} ${inter.variable} ${robotoMono.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
         {children}
+        <Toaster position="bottom-right" theme="dark" richColors closeButton />
       </body>
     </html>
   );
