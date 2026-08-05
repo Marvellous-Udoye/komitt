@@ -1,173 +1,238 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Bell,
-  Bot,
-  CalendarCheck,
-  CheckCircle2,
-  Clock3,
-  LineChart,
-  Mail,
-  Sparkles,
-  Target,
-} from "lucide-react";
-import { BrandLogo } from "@/components/brand-logo";
-import { MiniDashboard } from "@/features/marketing/components/mini-dashboard";
-
-const workflows = [
-  "Create goal",
-  "AI breakdown",
-  "Task schedule",
-  "Daily reminder",
-  "Check-in",
-  "Coach feedback",
-  "Dashboard update",
-];
-
-const features = [
-  {
-    icon: Target,
-    title: "Goal maps that stay usable",
-    body: "High-level goals become milestones and tasks that feel realistic, scheduled, and easy to review.",
-    tone: "mint",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Daily check-ins without drama",
-    body: "Users report yes, partial, or no, add a reflection, and trigger AI feedback immediately.",
-    tone: "cream",
-  },
-  {
-    icon: Bot,
-    title: "Coaching from behavior",
-    body: "Komitt can spot postponed tasks, low-consistency windows, and missed deadlines before they become patterns.",
-    tone: "cream",
-  },
-  {
-    icon: LineChart,
-    title: "Progress users can read fast",
-    body: "Goals completed, tasks completed, weekly consistency, current streak, and upcoming deadlines in one dashboard.",
-    tone: "blush",
-  },
-];
+import { ArrowRight, Bell, Clock3, Mail } from "lucide-react";
+import { LandingNav } from "@/features/marketing/components/landing-nav";
+import { ProductScreenshot } from "@/features/marketing/components/product-screenshot";
+import { LogoStrip } from "@/features/marketing/components/logo-strip";
+import { PlanMock } from "@/features/marketing/components/plan-mock";
+import { CheckinMock } from "@/features/marketing/components/checkin-mock";
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-cream-paper text-forest-ink">
-      <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-nav border border-pencil-gray bg-cream-paper/95 px-3 py-2 shadow-nav backdrop-blur">
-          <BrandLogo />
-          <div className="hidden items-center gap-7 text-sm font-medium md:flex">
-            <a href="#workflow">Workflow</a>
-            <a href="#features">Features</a>
-            <a href="#dashboard">Dashboard</a>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link className="btn-outline hidden sm:inline-flex" href="/login">
-              Log in
-            </Link>
-            <Link className="btn-primary h-10 px-4 text-sm" href="/signup">
-              <ArrowRight size={16} /> Start
-            </Link>
-          </div>
-        </nav>
-      </header>
+    <main className="min-h-screen bg-void text-mist">
+      <LandingNav />
 
-      <section className="relative mx-auto flex min-h-[92vh] max-w-6xl flex-col items-center justify-center px-4 pb-12 pt-32 text-center">
-        <div className="sketch sketch-left" />
-        <div className="sketch sketch-right" />
-        <div className="tagline animate-float">
-          <Sparkles size={14} /> AI execution system
-        </div>
-        <h1 className="mt-7 max-w-5xl font-display text-[clamp(3.2rem,8vw,5.6rem)] font-extrabold leading-none tracking-display">
-          Turn your goals into{" "}
-          <span className="highlight">daily proof</span> of progress.
-        </h1>
-        <p className="mt-7 max-w-2xl text-lg leading-8 sm:text-xl">
-          Komitt is an accountability platform for people who want their plans
-          broken down, scheduled, checked daily, and adjusted by AI before
-          momentum slips.
-        </p>
-        <div className="mt-9 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
-          <Link className="btn-primary h-14 w-full px-9 sm:w-auto" href="/signup">
-            <ArrowRight size={18} /> Create my plan
-          </Link>
-          <Link className="btn-secondary h-14 w-full px-7 sm:w-auto" href="/dashboard">
-            View dashboard
-          </Link>
-        </div>
-        <p className="mt-3 text-sm text-forest-ink/55">
-          No complicated setup. Just a daily loop that keeps you honest.
-        </p>
-      </section>
-
-      <section id="workflow" className="mx-auto max-w-6xl px-4 py-16">
-        <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-          <div>
-            <p className="label">Execution loop</p>
-            <h2 className="section-title">One connected system, split into clean workflows.</h2>
-            <p className="mt-5 max-w-xl text-base leading-7">
-              Komitt keeps each part of accountability clear: capture the goal,
-              create the plan, remind the user, collect the check-in, coach the
-              next move, and update progress automatically.
-            </p>
-          </div>
-          <div className="workflow-board">
-            {workflows.map((item, index) => (
-              <div className="workflow-step" key={item} style={{ animationDelay: `${index * 90}ms` }}>
-                <span>{index + 1}</span>
-                {item}
+      <section className="relative pt-32 sm:pt-40">
+        <div className="hero-grid pointer-events-none absolute inset-0 -z-10" />
+        <div className="mx-auto max-w-[1200px] px-6">
+          <div className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
+            <div className="max-w-3xl">
+              <span className="inline-flex items-center gap-2 rounded-full border border-graphite bg-carbon px-3 py-1.5 text-[12px] text-fog">
+                <span className="size-1.5 rounded-full bg-acid-lime" />
+                AI accountability system
+              </span>
+              <h1 className="mt-6 text-[clamp(2.75rem,6vw,4rem)] font-[510] leading-[1] tracking-[-0.022em] text-paper">
+                Turn your goals into daily proof of progress.
+              </h1>
+              <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-fog">
+                Komitt breaks ambitious goals into plans, checks in with you every day,
+                and coaches the next move before momentum slips.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link
+                  href="/signup"
+                  className="inline-flex h-10 items-center gap-2 rounded-md bg-acid-lime px-4 text-[14px] font-[510] tracking-[-0.011em] text-void transition-opacity hover:opacity-90"
+                >
+                  Create my plan
+                  <ArrowRight className="size-4" />
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="inline-flex h-10 items-center gap-2 rounded-md border border-graphite px-4 text-[13px] text-mist transition-colors hover:border-smoke hover:text-paper"
+                >
+                  View live dashboard
+                </Link>
               </div>
-            ))}
+              <p className="mt-4 text-[13px] text-ash">
+                No complicated setup. Just a daily loop that keeps you honest.
+              </p>
+            </div>
+            <Link
+              href="#workflow"
+              className="group hidden items-center gap-1.5 text-[13px] text-fog transition-colors hover:text-paper lg:inline-flex"
+            >
+              See how it works
+              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="relative mt-16 sm:mt-20">
+          <div className="hero-floor pointer-events-none absolute inset-x-0 -bottom-24 top-6 -z-10 opacity-100" />
+          <div className="mx-auto max-w-[1100px] px-4 sm:px-6">
+            <ProductScreenshot />
           </div>
         </div>
       </section>
 
-      <section id="features" className="mx-auto max-w-6xl px-4 py-16">
-        <p className="label text-center">Product surface</p>
-        <h2 className="section-title mx-auto max-w-3xl text-center">
-          Everything the user needs from goal capture to reflection.
-        </h2>
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {features.map((feature) => (
-            <article className={`sticky-card tone-${feature.tone}`} key={feature.title}>
-              <feature.icon size={26} />
-              <h3>{feature.title}</h3>
-              <p>{feature.body}</p>
-            </article>
-          ))}
+      <section className="mt-28">
+        <LogoStrip />
+      </section>
+
+      <section id="workflow" className="mx-auto mt-28 max-w-[1200px] scroll-mt-20 px-6">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-center">
+          <div>
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-acid-lime">
+              01 — Execution loop
+            </span>
+            <h2 className="mt-4 text-[clamp(2rem,4.5vw,3rem)] font-[510] leading-[1.05] tracking-[-0.022em] text-paper">
+              One connected system, split into clean plans.
+            </h2>
+            <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-fog">
+              High-level goals become milestones and tasks that feel realistic,
+              scheduled, and easy to review. The plan is generated for you and stays
+              usable every day.
+            </p>
+          </div>
+          <PlanMock />
         </div>
       </section>
 
-      <section id="dashboard" className="mx-auto max-w-6xl px-4 py-16">
-        <div className="grid gap-7 lg:grid-cols-[1fr_1.2fr] lg:items-center">
+      <section id="features" className="mx-auto mt-28 max-w-[1200px] scroll-mt-20 px-6">
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+          <CheckinMock />
           <div>
-            <p className="label">Live app preview</p>
-            <h2 className="section-title">A dashboard that makes accountability visible.</h2>
-            <p className="mt-5 text-base leading-7">
-              Charts and counters are built for the real dashboard endpoint:
-              completed goals, completed tasks, consistency, streak, deadlines,
-              plus a daily check-in composer.
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-signal-teal">
+              02 — Daily rhythm
+            </span>
+            <h2 className="mt-4 text-[clamp(2rem,4.5vw,3rem)] font-[510] leading-[1.05] tracking-[-0.022em] text-paper">
+              Check-ins that take seconds, feedback that adapts.
+            </h2>
+            <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-fog">
+              Report yes, partial, or no, add a short reflection, and trigger
+              coaching immediately. Komitt spots postponed tasks and low-consistency
+              windows before they become patterns.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <span className="pill"><Mail size={15} /> Email reminders</span>
-              <span className="pill"><Bell size={15} /> Daily nudges</span>
-              <span className="pill"><Clock3 size={15} /> Timezone ready</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="dashboard" className="mx-auto mt-28 max-w-[1200px] scroll-mt-20 px-6">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+          <div>
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-pulse-green">
+              03 — Progress
+            </span>
+            <h2 className="mt-4 text-[clamp(2rem,4.5vw,3rem)] font-[510] leading-[1.05] tracking-[-0.022em] text-paper">
+              A dashboard that makes accountability visible.
+            </h2>
+            <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-fog">
+              Goals completed, tasks completed, weekly consistency, current streak,
+              and upcoming deadlines in one focused workspace. Read progress fast,
+              act sooner.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-graphite px-3 py-1.5 text-[12px] text-fog">
+                <Mail className="size-3.5" /> Email reminders
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-graphite px-3 py-1.5 text-[12px] text-fog">
+                <Bell className="size-3.5" /> Daily nudges
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-graphite px-3 py-1.5 text-[12px] text-fog">
+                <Clock3 className="size-3.5" /> Timezone ready
+              </span>
             </div>
           </div>
-          <MiniDashboard />
+          <div className="hairline rounded-xl bg-carbon p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[11px] font-[510] uppercase tracking-[0.08em] text-fog">
+                  Today
+                </p>
+                <h3 className="mt-2 text-[20px] font-[510] leading-tight tracking-[-0.012em] text-paper">
+                  Launch Startup
+                </h3>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-acid-lime/10 px-3 py-1.5 font-mono text-[11px] text-acid-lime">
+                5 day streak
+              </span>
+            </div>
+            <div className="mt-6 grid grid-cols-3 gap-3">
+              {[
+                { label: "active goals", value: "4" },
+                { label: "tasks done", value: "31" },
+                { label: "consistency", value: "86%" },
+              ].map((metric) => (
+                <div key={metric.label} className="rounded-lg border border-graphite/70 bg-obsidian/50 p-4">
+                  <p className="text-[24px] font-[510] leading-none tracking-[-0.022em] text-paper">
+                    {metric.value}
+                  </p>
+                  <p className="mt-1.5 text-[12px] text-fog">{metric.label}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex h-28 items-end gap-2.5">
+              {[42, 68, 55, 82, 74, 91, 64].map((bar, index) => (
+                <div key={index} className="flex flex-1 flex-col items-center gap-2">
+                  <div className="w-full rounded-[3px] bg-obsidian">
+                    <div
+                      className="w-full rounded-[3px] bg-fog/70"
+                      style={{ height: `${bar * 0.55}px` }}
+                    />
+                  </div>
+                  <span className="font-mono text-[10px] text-fog">
+                    {["M", "T", "W", "T", "F", "S", "S"][index]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-20">
-        <div className="closing-panel">
-          <CheckCircle2 size={30} />
-          <h2>Ready to start the next execution cycle?</h2>
-          <Link className="btn-primary h-12 px-6" href="/signup">
-            <ArrowRight size={17} /> Open Komitt
-          </Link>
+      <section id="pricing" className="mx-auto mt-28 max-w-[1200px] scroll-mt-20 px-6">
+        <div className="hairline overflow-hidden rounded-xl bg-carbon">
+          <div className="grid gap-10 p-8 sm:p-12 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-acid-lime">
+                04 — Get started
+              </span>
+              <h2 className="mt-4 text-[clamp(2rem,4.5vw,3rem)] font-[510] leading-[1.05] tracking-[-0.022em] text-paper">
+                Ready to start the next execution cycle?
+              </h2>
+              <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-fog">
+                Sign in with Google, create your first goal, and let the coach keep
+                the loop moving.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/signup"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-acid-lime px-6 text-[14px] font-[510] tracking-[-0.011em] text-void transition-opacity hover:opacity-90"
+              >
+                Open Komitt
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-graphite px-6 text-[13px] text-mist transition-colors hover:border-smoke hover:text-paper"
+              >
+                Explore the dashboard
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
+
+      <footer className="mx-auto mt-28 max-w-[1200px] px-6 pb-10">
+        <div className="flex flex-col items-start justify-between gap-4 border-t border-graphite/60 pt-8 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-5 items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" className="size-5">
+                <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="#8a8f98" strokeWidth="1.5" />
+                <path d="M7 12.5l3.2 3.2L17 8.5" stroke="#e4f222" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            <span className="text-[15px] font-[510] tracking-[-0.011em] text-mist">Komitt</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-6 text-[13px] text-fog">
+            <a href="#workflow" className="transition-colors hover:text-paper">Workflow</a>
+            <a href="#features" className="transition-colors hover:text-paper">Features</a>
+            <a href="#dashboard" className="transition-colors hover:text-paper">Dashboard</a>
+            <a href="/login" className="transition-colors hover:text-paper">Log in</a>
+          </div>
+          <p className="font-mono text-[11px] text-ash">© 2026 Komitt</p>
+        </div>
+      </footer>
     </main>
   );
 }
