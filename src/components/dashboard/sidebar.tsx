@@ -5,9 +5,11 @@ import { usePathname } from "next/navigation";
 import { Flame, LogOut } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
+import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { mainNav, systemNav } from "@/components/dashboard/nav-config";
 import { useDashboard } from "@/lib/dashboard-store";
-import { clearSession } from "@/lib/auth-session";
+import { useUser } from "@/lib/user-store";
+import { signOut } from "@/lib/auth-session";
 import { cn } from "@/lib/utils";
 
 function NavGroup({
@@ -59,12 +61,8 @@ function NavGroup({
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const streak = useDashboard((state) => state.streak);
-
-  function signOut() {
-    clearSession();
-    window.location.href = "/";
-  }
+  const streak = useDashboard((state) => state.liveStreak ?? state.streak);
+  const user = useUser((state) => state.user);
 
   return (
     <div className="flex h-full flex-col border-r border-graphite/70 bg-carbon">
@@ -90,6 +88,15 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       </div>
 
       <div className="border-t border-graphite/70 p-3">
+        <div className="mb-2 flex items-center gap-2.5 rounded-md px-1 py-2">
+          <UserAvatar user={user} className="size-8" />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[12px] font-[510] text-mist">
+              {user?.name?.split(" ")[0] ?? "Komitt user"}
+            </p>
+            <p className="truncate text-[10px] text-fog">{user?.email ?? "Signed in with Google"}</p>
+          </div>
+        </div>
         <Button
           variant="ghost"
           onClick={signOut}

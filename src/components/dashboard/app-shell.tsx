@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
+import { useUser } from "@/lib/user-store";
+import { useDashboard } from "@/lib/dashboard-store";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    useUser.getState().hydrate();
+    useDashboard.getState().syncFromN8n().catch(() => undefined);
+  }, []);
 
   return (
     <div className="min-h-screen bg-void">

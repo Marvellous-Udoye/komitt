@@ -3,19 +3,24 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Menu, Search, Sparkles } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useDashboard } from "@/lib/dashboard-store";
-import { clearSession } from "@/lib/auth-session";
+import { useUser } from "@/lib/user-store";
+import { UserAvatar } from "@/components/dashboard/user-avatar";
+import { isLiveMode } from "@/lib/n8n-client";
+import { isRealSession, signOut } from "@/lib/auth-session";
+import { cn } from "@/lib/utils";
 
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const user = useUser((state) => state.user);
   const tasks = useDashboard((state) => state.tasks);
   const goals = useDashboard((state) => state.goals);
   const insights = useDashboard((state) => state.insights);
+  const live = isLiveMode();
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -25,11 +30,6 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
       goals: goals.filter((g) => g.title.toLowerCase().includes(q) || g.category.toLowerCase().includes(q)).slice(0, 3),
     };
   }, [query, tasks, goals]);
-
-  function signOut() {
-    clearSession();
-    window.location.href = "/";
-  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-graphite/70 bg-void/80 px-4 backdrop-blur-md sm:px-6">
@@ -117,6 +117,18 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         )}
       </div>
 
+      <span className="hidden items-center gap-1.5 rounded-full border border-graphite bg-carbon px-2.5 py-1 md:flex">
+        <span
+          className={cn(
+            "size-1.5 rounded-full",
+            live ? "bg-pulse-green" : isRealSession() ? "bg-amber-400" : "bg-fog",
+          )}
+        />
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fog">
+          {live ? "Live" : isRealSession() ? "Demo data" : "Demo"}
+        </span>
+      </span>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="size-9 text-mist" aria-label="Notifications">
@@ -149,19 +161,17 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-9 gap-2 rounded-md px-1.5 text-mist hover:bg-white/[0.03]">
-            <Avatar className="size-7">
-              <AvatarFallback className="bg-iris-violet/20 text-[11px] font-[510] text-lavender">
-                AR
-              </AvatarFallback>
-            </Avatar>
-            <span className="hidden text-[13px] text-mist sm:inline">Alex</span>
+            <UserAvatar user={user} />
+            <span className="hidden max-w-[120px] truncate text-[13px] text-mist sm:inline">
+              {user?.name?.split(" ")[0] ?? "Komitt user"}
+            </span>
             <ChevronDown className="hidden size-3.5 text-fog sm:block" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-52 border-graphite bg-obsidian p-1.5 text-mist">
+        <DropdownMenuContent align="end" className="w-56 border-graphite bg-obsidian p-1.5 text-mist">
           <DropdownMenuLabel className="px-2 py-2">
-            <p className="text-[13px] font-[510] text-paper">Alex Rivera</p>
-            <p className="text-[12px] font-normal text-fog">alex@komitt.co</p>
+            <p className="truncate text-[13px] font-[510] text-paper">{user?.name ?? "Komitt user"}</p>
+            <p className="truncate text-[12px] font-normal text-fog">{user?.email ?? "Signed in with Google"}</p>
           </DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-graphite" />
           <DropdownMenuItem className="cursor-pointer text-[13px] focus:bg-white/[0.05]" onSelect={() => router.push("/dashboard/settings")}>
