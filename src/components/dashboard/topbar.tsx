@@ -177,9 +177,6 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           <DropdownMenuItem className="cursor-pointer text-[13px] focus:bg-white/[0.05]" onSelect={() => router.push("/dashboard/settings")}>
             Settings
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer text-[13px] focus:bg-white/[0.05]" onSelect={() => router.push("/")}>
-            Back to site
-          </DropdownMenuItem>
           <DropdownMenuSeparator className="bg-graphite" />
           <DropdownMenuItem
             className="cursor-pointer text-[13px] text-coral-red focus:bg-coral-red/10 focus:text-coral-red"

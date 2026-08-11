@@ -64,7 +64,7 @@ export default function SettingsPage() {
         </TabsList>
 
         <TabsContent value="profile" className="mt-6">
-          <Card className="max-w-xl">
+          <Card className="max-w-full">
             <CardHeader
               title="Account"
               description="Your identity across the workspace"
@@ -107,7 +107,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="preferences" className="mt-6">
-          <Card className="max-w-xl">
+          <Card className="max-w-full">
             <CardHeader title="Preferences" description="How Komitt behaves around your schedule" />
             <div className="space-y-5">
               <div className="flex items-center justify-between gap-6">
@@ -196,7 +196,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="data" className="mt-6">
-          <Card className="max-w-xl">
+          <Card className="max-w-full">
             <CardHeader title="Workspace data" description="Reset or export your execution data" />
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-6 rounded-lg border border-graphite/70 bg-obsidian/40 p-4">

@@ -13,7 +13,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             className="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-[13px] text-fog transition-colors hover:text-paper"
           >
             <ArrowLeft className="size-3.5" />
-            Back to site
+            Back
           </Link>
         </nav>
       </header>
