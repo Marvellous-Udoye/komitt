@@ -19,6 +19,7 @@ import {
   type N8nDashboard,
   type N8nTaskInput,
 } from "@/lib/n8n-client";
+import { fetchDashboardData } from "@/lib/supabase-client";
 
 let counter = 100;
 
@@ -229,34 +230,62 @@ export const useDashboard = create<DashboardState>((set) => ({
 
   syncFromN8n: async () => {
     set({ status: "loading", error: null });
+
     if (!isLiveMode()) {
       set({ status: "ready" });
       return;
     }
 
-    let payload: N8nDashboard;
-    try {
-      payload = await getDashboard();
-    } catch (error) {
-      set({
-        status: "error",
-        error:
-          error instanceof Error
-            ? error.message
-            : "Could not reach the n8n dashboard webhook.",
-      });
-      return;
+    const sessionToken =
+      typeof window === "undefined"
+        ? undefined
+        : (() => {
+            const raw = window.localStorage.getItem("komitt.session");
+            if (!raw) return undefined;
+            try {
+              const session = JSON.parse(raw) as { accessToken?: string };
+              return session.accessToken;
+            } catch {
+              return undefined;
+            }
+          })();
+
+    let goals: Goal[] = [];
+    let tasks: Task[] = [];
+    let checkins: Checkin[] = [];
+    let insights: Insight[] = [];
+    let weekly: WeeklyPoint[] = [];
+    let streak = 0;
+    let liveGoalsCompleted: number | null = null;
+    let liveTasksCompleted: number | null = null;
+    let liveWeeklyConsistency: string | null = null;
+    let liveStreak: number | null = null;
+
+    const supabaseData = sessionToken ? await fetchDashboardData(sessionToken) : null;
+    if (supabaseData) {
+      goals = supabaseData.goals;
+      tasks = supabaseData.tasks;
+      checkins = supabaseData.checkins;
+      insights = supabaseData.insights;
+      weekly = supabaseData.weekly;
+      streak = supabaseData.streak;
     }
 
-    set((state) => {
-      const merged = state.tasks.slice();
-      for (const deadline of payload.upcoming_deadlines ?? []) {
-        if (!merged.some((task) => task.id === deadline.id)) {
+    let n8nPayload: N8nDashboard | undefined;
+    try {
+      n8nPayload = (await getDashboard()) ?? undefined;
+    } catch {
+      n8nPayload = undefined;
+    }
+
+    if (n8nPayload) {
+      for (const deadline of n8nPayload.upcoming_deadlines ?? []) {
+        if (!tasks.some((task) => task.id === deadline.id)) {
           const priority =
             deadline.priority === "low" || deadline.priority === "high"
               ? deadline.priority
               : "medium";
-          merged.push({
+          tasks.push({
             id: deadline.id,
             title: deadline.title,
             goalId: "",
@@ -268,15 +297,25 @@ export const useDashboard = create<DashboardState>((set) => ({
           });
         }
       }
+      liveGoalsCompleted = n8nPayload.goals_completed ?? null;
+      liveTasksCompleted = n8nPayload.tasks_completed ?? null;
+      liveWeeklyConsistency = n8nPayload.weekly_consistency ?? null;
+      liveStreak = n8nPayload.current_streak ?? null;
+    }
 
-      return {
-        status: "ready",
-        liveGoalsCompleted: payload.goals_completed,
-        liveTasksCompleted: payload.tasks_completed,
-        liveWeeklyConsistency: payload.weekly_consistency,
-        liveStreak: payload.current_streak,
-        tasks: merged,
-      };
+    set({
+      status: "ready",
+      error: null,
+      goals,
+      tasks,
+      checkins,
+      insights,
+      weekly,
+      streak,
+      liveGoalsCompleted,
+      liveTasksCompleted,
+      liveWeeklyConsistency,
+      liveStreak,
     });
   },
 

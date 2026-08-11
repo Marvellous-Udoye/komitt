@@ -61,7 +61,10 @@ export function toISODate(date: Date) {
 }
 
 export function formatDate(iso: string) {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString("en-US", {
+  if (!iso) return "—";
+  const date = new Date(`${iso.slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });

@@ -31,7 +31,14 @@ async function request<T>(path: string, method: "GET" | "POST", options: Request
     throw new Error(`n8n request failed (${response.status})${detail ? ` — ${detail}` : ""}`);
   }
 
-  return (await response.json()) as T;
+  const text = await response.text().catch(() => "");
+  if (!text) return undefined as T;
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return undefined as T;
+  }
 }
 
 export function isLiveMode() {
