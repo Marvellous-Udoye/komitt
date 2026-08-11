@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useDashboard } from "@/lib/dashboard-store";
+import { isLiveMode, submitCheckinLive } from "@/lib/n8n-client";
 import { cn } from "@/lib/utils";
 import type { CheckinStatus } from "@/lib/demo-data";
 
@@ -37,18 +38,42 @@ export function CheckinDialog({
   const [status, setStatus] = useState<CheckinStatus | null>(null);
   const [reflection, setReflection] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   function reset() {
     setStatus(null);
     setReflection("");
     setFeedback(null);
+    setSubmitting(false);
   }
 
-  function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!status) return;
-    const feedback = submitCheckin(status, reflection.trim());
-    setFeedback(feedback);
+
+    if (isLiveMode()) {
+      setSubmitting(true);
+      try {
+        const result = await submitCheckinLive(undefined, {
+          completion_status: status,
+          reflection: reflection.trim(),
+        });
+        setFeedback(result.feedback ?? submitCheckin(status, reflection.trim()));
+        toast.success("Check-in submitted", {
+          description: "Your coach has reviewed your day.",
+        });
+      } catch (error) {
+        toast.error("Check-in failed", {
+          description: error instanceof Error ? error.message : "Could not reach the n8n webhook.",
+        });
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    const nextFeedback = submitCheckin(status, reflection.trim());
+    setFeedback(nextFeedback);
     toast.success("Check-in submitted", {
       description: "Your coach has reviewed your day.",
     });
@@ -162,10 +187,10 @@ export function CheckinDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={!status}
+                disabled={!status || submitting}
                 className="h-9 rounded-md bg-acid-lime text-[13px] font-[510] text-void shadow-none hover:opacity-90 disabled:opacity-50"
               >
-                Submit check-in
+                {submitting ? "Submitting…" : "Submit check-in"}
               </Button>
             </div>
           </form>

@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useDashboard } from "@/lib/dashboard-store";
+import { isLiveMode, createGoalLive } from "@/lib/n8n-client";
 
 const categories = ["Startup", "Learning", "Health", "Finance", "Creative", "Personal"];
 
@@ -27,15 +28,54 @@ export function NewGoalDialog({
   trigger?: React.ReactNode;
 }) {
   const addGoal = useDashboard((state) => state.addGoal);
+  const applyGoalBreakdown = useDashboard((state) => state.applyGoalBreakdown);
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("Personal");
   const [dueDate, setDueDate] = useState("");
+  const [pending, setPending] = useState(false);
 
-  function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     if (!title.trim()) return;
+
+    if (isLiveMode()) {
+      setPending(true);
+      try {
+        const result = await createGoalLive(undefined, {
+          title: title.trim(),
+          description: description.trim(),
+        });
+        const goal = result.goal;
+        if (!goal) throw new Error("The plan service returned no goal.");
+        applyGoalBreakdown({
+          goalId: goal.id,
+          title: goal.title,
+          description: goal.description ?? "",
+          category,
+          dueDate,
+          milestones: result.milestones?.length ?? 0,
+          tasks: result.tasks ?? [],
+        });
+        setOpen(false);
+        setTitle("");
+        setDescription("");
+        setCategory("Personal");
+        setDueDate("");
+        toast.success("Goal created", {
+          description: "Your AI plan is ready in the workspace.",
+        });
+      } catch (error) {
+        toast.error("Goal creation failed", {
+          description: error instanceof Error ? error.message : "Could not reach the n8n webhook.",
+        });
+      } finally {
+        setPending(false);
+      }
+      return;
+    }
+
     addGoal({ title: title.trim(), description: description.trim(), category, dueDate });
     setOpen(false);
     setTitle("");
@@ -133,9 +173,10 @@ export function NewGoalDialog({
             </Button>
             <Button
               type="submit"
-              className="h-9 rounded-md bg-acid-lime text-[13px] font-[510] text-void shadow-none hover:opacity-90"
+              disabled={pending}
+              className="h-9 rounded-md bg-acid-lime text-[13px] font-[510] text-void shadow-none hover:opacity-90 disabled:opacity-60"
             >
-              Create goal
+              {pending ? "Creating plan…" : "Create goal"}
             </Button>
           </DialogFooter>
         </form>

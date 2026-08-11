@@ -2,12 +2,6 @@
 
 import { create } from "zustand";
 import {
-  initialCheckins,
-  initialGoals,
-  initialInsights,
-  initialStreak,
-  initialTasks,
-  initialWeekly,
   toISODate,
   TODAY,
   type Checkin,
@@ -19,6 +13,12 @@ import {
   type TaskStatus,
   type WeeklyPoint,
 } from "@/lib/demo-data";
+import {
+  getDashboard,
+  isLiveMode,
+  type N8nDashboard,
+  type N8nTaskInput,
+} from "@/lib/n8n-client";
 
 let counter = 100;
 
@@ -27,7 +27,12 @@ function nextId(prefix: string) {
   return `${prefix}-${counter}`;
 }
 
+export type DashboardStatus = "loading" | "ready" | "error";
+
 type DashboardState = {
+  status: DashboardStatus;
+  error: string | null;
+
   goals: Goal[];
   tasks: Task[];
   checkins: Checkin[];
@@ -35,6 +40,11 @@ type DashboardState = {
   weekly: WeeklyPoint[];
   streak: number;
   lastCheckinStatus: CheckinStatus | null;
+
+  liveGoalsCompleted: number | null;
+  liveTasksCompleted: number | null;
+  liveWeeklyConsistency: string | null;
+  liveStreak: number | null;
 
   addGoal: (input: {
     title: string;
@@ -54,17 +64,35 @@ type DashboardState = {
   setTaskStatus: (id: string, status: TaskStatus) => void;
   submitCheckin: (status: CheckinStatus, reflection: string) => string;
   addInsight: (content: string, category: Insight["category"]) => void;
+  applyGoalBreakdown: (input: {
+    goalId: string;
+    title: string;
+    description: string;
+    category: string;
+    dueDate: string;
+    milestones: number;
+    tasks: N8nTaskInput[];
+  }) => void;
+  syncFromN8n: () => Promise<void>;
   resetDemo: () => void;
 };
 
 export const useDashboard = create<DashboardState>((set) => ({
-  goals: initialGoals,
-  tasks: initialTasks,
-  checkins: initialCheckins,
-  insights: initialInsights,
-  weekly: initialWeekly,
-  streak: initialStreak,
+  status: "loading",
+  error: null,
+
+  goals: [],
+  tasks: [],
+  checkins: [],
+  insights: [],
+  weekly: [],
+  streak: 0,
   lastCheckinStatus: null,
+
+  liveGoalsCompleted: null,
+  liveTasksCompleted: null,
+  liveWeeklyConsistency: null,
+  liveStreak: null,
 
   addGoal: (input) =>
     set((state) => {
@@ -158,14 +186,114 @@ export const useDashboard = create<DashboardState>((set) => ({
       ],
     })),
 
+  applyGoalBreakdown: (input) =>
+    set((state) => {
+      const goal: Goal = {
+        id: input.goalId,
+        title: input.title,
+        description: input.description,
+        category: input.category,
+        status: "active",
+        milestones: input.milestones,
+        milestonesDone: 0,
+        createdAt: TODAY,
+        dueDate: input.dueDate || toISODate(new Date(Date.now() + 30 * 86400000)),
+      };
+
+      const tasks: Task[] = input.tasks
+        .filter((task) => task.id && task.title)
+        .map((task) => {
+          const priority =
+            task.priority === "low" || task.priority === "high"
+              ? task.priority
+              : "medium";
+          return {
+            id: task.id,
+            title: task.title,
+            goalId: goal.id,
+            goalTitle: goal.title,
+            status: "todo" as const,
+            priority,
+            estimate: task.estimated_duration_minutes
+              ? `${task.estimated_duration_minutes} min`
+              : "—",
+            dueDate: task.due_date ?? TODAY,
+          };
+        });
+
+      return {
+        goals: [goal, ...state.goals],
+        tasks: [...state.tasks, ...tasks],
+      };
+    }),
+
+  syncFromN8n: async () => {
+    set({ status: "loading", error: null });
+    if (!isLiveMode()) {
+      set({ status: "ready" });
+      return;
+    }
+
+    let payload: N8nDashboard;
+    try {
+      payload = await getDashboard();
+    } catch (error) {
+      set({
+        status: "error",
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not reach the n8n dashboard webhook.",
+      });
+      return;
+    }
+
+    set((state) => {
+      const merged = state.tasks.slice();
+      for (const deadline of payload.upcoming_deadlines ?? []) {
+        if (!merged.some((task) => task.id === deadline.id)) {
+          const priority =
+            deadline.priority === "low" || deadline.priority === "high"
+              ? deadline.priority
+              : "medium";
+          merged.push({
+            id: deadline.id,
+            title: deadline.title,
+            goalId: "",
+            goalTitle: "—",
+            status: "todo",
+            priority,
+            estimate: "—",
+            dueDate: deadline.due_date ?? TODAY,
+          });
+        }
+      }
+
+      return {
+        status: "ready",
+        liveGoalsCompleted: payload.goals_completed,
+        liveTasksCompleted: payload.tasks_completed,
+        liveWeeklyConsistency: payload.weekly_consistency,
+        liveStreak: payload.current_streak,
+        tasks: merged,
+      };
+    });
+  },
+
   resetDemo: () =>
     set({
-      goals: initialGoals,
-      tasks: initialTasks,
-      checkins: initialCheckins,
-      insights: initialInsights,
-      weekly: initialWeekly,
-      streak: initialStreak,
+      status: "ready",
+      error: null,
+      goals: [],
+      tasks: [],
+      checkins: [],
+      insights: [],
+      weekly: [],
+      streak: 0,
       lastCheckinStatus: null,
+      liveGoalsCompleted: null,
+      liveTasksCompleted: null,
+      liveWeeklyConsistency: null,
+      liveStreak: null,
     }),
 }));
