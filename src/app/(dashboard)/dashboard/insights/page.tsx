@@ -1,8 +1,9 @@
 "use client";
 
-import { Bot, Sparkles, TrendingUp, AlertTriangle } from "lucide-react";
+import { Bot, Sparkles, TrendingUp, AlertTriangle, MessageSquarePlus } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatusBadge, insightTone } from "@/components/dashboard/status-badge";
+import { EmptyState, ErrorState, CoachSkeleton } from "@/components/dashboard/data-states";
 import { useDashboard } from "@/lib/dashboard-store";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,9 @@ const categoryMeta = {
 } as const;
 
 export default function InsightsPage() {
+  const status = useDashboard((state) => state.status);
+  const error = useDashboard((state) => state.error);
+  const syncFromN8n = useDashboard((state) => state.syncFromN8n);
   const insights = useDashboard((state) => state.insights);
 
   return (
@@ -22,7 +26,18 @@ export default function InsightsPage() {
         description="Behavioral signals your coach has noticed across goals, tasks, and check-ins."
       />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {status === "loading" ? (
+        <CoachSkeleton />
+      ) : status === "error" ? (
+        <ErrorState message={error ?? undefined} onRetry={syncFromN8n} />
+      ) : insights.length === 0 ? (
+        <EmptyState
+          icon={MessageSquarePlus}
+          title="No insights yet"
+          description="Komitt will surface coaching notes here after it sees enough check-ins, postponements, and completion patterns."
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {insights.map((insight, index) => {
           const meta = categoryMeta[insight.category];
           return (
@@ -68,6 +83,7 @@ export default function InsightsPage() {
           );
         })}
       </div>
+      )}
 
       <div className="hairline flex items-start gap-3 rounded-xl border-acid-lime/20 bg-acid-lime/[0.03] p-5">
         <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-md bg-acid-lime/10">

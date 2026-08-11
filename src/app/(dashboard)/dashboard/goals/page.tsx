@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Target } from "lucide-react";
+import { Target, Trophy } from "lucide-react";
 import { PageHeader, Card } from "@/components/dashboard/page-header";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge, goalStatusTone } from "@/components/dashboard/status-badge";
 import { NewGoalDialog } from "@/components/dashboard/dialogs/new-goal-dialog";
+import { EmptyState, ErrorState, FilterBarSkeleton, TableRowsSkeleton } from "@/components/dashboard/data-states";
 import { useDashboard } from "@/lib/dashboard-store";
 import { formatDate, type GoalStatus } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
@@ -20,6 +21,9 @@ const statuses: Array<{ value: "all" | GoalStatus; label: string }> = [
 ];
 
 export default function GoalsPage() {
+  const status = useDashboard((state) => state.status);
+  const error = useDashboard((state) => state.error);
+  const syncFromN8n = useDashboard((state) => state.syncFromN8n);
   const goals = useDashboard((state) => state.goals);
   const setGoalStatus = useDashboard((state) => state.setGoalStatus);
   const [filter, setFilter] = useState<"all" | GoalStatus>("all");
@@ -34,31 +38,48 @@ export default function GoalsPage() {
         actions={<NewGoalDialog />}
       />
 
-      <div className="flex flex-wrap items-center gap-1.5">
-        {statuses.map((tab) => {
-          const count =
-            tab.value === "all"
-              ? goals.length
-              : goals.filter((goal) => goal.status === tab.value).length;
-          return (
-            <button
-              key={tab.value}
-              onClick={() => setFilter(tab.value)}
-              className={cn(
-                "rounded-md border px-3 py-1.5 text-[12px] transition-colors",
-                filter === tab.value
-                  ? "border-acid-lime/50 bg-acid-lime/10 text-acid-lime"
-                  : "border-graphite bg-obsidian/40 text-fog hover:border-smoke hover:text-mist",
-              )}
-            >
-              {tab.label}
-              <span className="ml-1.5 font-mono text-[10px] text-ash">{count}</span>
-            </button>
-          );
-        })}
-      </div>
+      {status === "loading" ? (
+        <>
+          <FilterBarSkeleton />
+          <TableRowsSkeleton rows={4} cols={4} />
+        </>
+      ) : status === "error" ? (
+        <ErrorState message={error ?? undefined} onRetry={syncFromN8n} />
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {statuses.map((tab) => {
+              const count =
+                tab.value === "all"
+                  ? goals.length
+                  : goals.filter((goal) => goal.status === tab.value).length;
+              return (
+                <button
+                  key={tab.value}
+                  onClick={() => setFilter(tab.value)}
+                  className={cn(
+                    "rounded-md border px-3 py-1.5 text-[12px] transition-colors",
+                    filter === tab.value
+                      ? "border-acid-lime/50 bg-acid-lime/10 text-acid-lime"
+                      : "border-graphite bg-obsidian/40 text-fog hover:border-smoke hover:text-mist",
+                  )}
+                >
+                  {tab.label}
+                  <span className="ml-1.5 font-mono text-[10px] text-ash">{count}</span>
+                </button>
+              );
+            })}
+          </div>
 
-      <Card className="p-0">
+          {goals.length === 0 ? (
+            <EmptyState
+              icon={Trophy}
+              title="No goals yet"
+              description="Goals turn into milestone-backed plans with scheduled tasks. Create your first one to start the loop."
+              action={<NewGoalDialog />}
+            />
+          ) : (
+            <Card className="p-0">
         <Table>
           <TableHeader>
             <TableRow className="border-graphite/70 hover:bg-transparent">
@@ -139,17 +160,19 @@ export default function GoalsPage() {
                 </TableRow>
               );
             })}
-            {filtered.length === 0 && (
+            {filtered.length === 0 && filter !== "all" && (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={5} className="py-12 text-center text-[13px] text-fog">
-                  No {filter === "all" ? "goals" : `${filter} goals`} here. Create your first
-                  one to start the loop.
+                  No {filter} goals here.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
-      </Card>
+          </Card>
+        )}
+        </>
+      )}
     </div>
   );
 }

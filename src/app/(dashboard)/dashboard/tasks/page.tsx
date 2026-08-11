@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ListTodo } from "lucide-react";
 import { PageHeader, Card } from "@/components/dashboard/page-header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { StatusBadge, priorityTone } from "@/components/dashboard/status-badge";
 import { NewTaskDialog } from "@/components/dashboard/dialogs/new-task-dialog";
+import { EmptyState, ErrorState, FilterBarSkeleton, TableRowsSkeleton } from "@/components/dashboard/data-states";
 import { useDashboard } from "@/lib/dashboard-store";
 import { formatDate, TODAY, type TaskStatus } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,9 @@ const filters = [
 ] as const;
 
 export default function TasksPage() {
+  const status = useDashboard((state) => state.status);
+  const error = useDashboard((state) => state.error);
+  const syncFromN8n = useDashboard((state) => state.syncFromN8n);
   const tasks = useDashboard((state) => state.tasks);
   const goals = useDashboard((state) => state.goals);
   const setTaskStatus = useDashboard((state) => state.setTaskStatus);
@@ -42,7 +46,16 @@ export default function TasksPage() {
         actions={<NewTaskDialog />}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      {status === "loading" ? (
+        <>
+          <FilterBarSkeleton />
+          <TableRowsSkeleton rows={5} cols={4} />
+        </>
+      ) : status === "error" ? (
+        <ErrorState message={error ?? undefined} onRetry={syncFromN8n} />
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
           {filters.map((tab) => {
             const count =
@@ -85,8 +98,16 @@ export default function TasksPage() {
         </Select>
       </div>
 
-      <Card className="p-0">
-        <Table>
+      {tasks.length === 0 ? (
+            <EmptyState
+              icon={ListTodo}
+              title="No tasks yet"
+              description="Tasks are generated from your goals and their milestones. Create a goal to populate this queue."
+              action={<NewTaskDialog />}
+            />
+          ) : (
+            <Card className="p-0">
+              <Table>
           <TableHeader>
             <TableRow className="border-graphite/70 hover:bg-transparent">
               <TableHead className="w-10 pl-6" />
@@ -166,7 +187,7 @@ export default function TasksPage() {
                 </TableRow>
               );
             })}
-            {filtered.length === 0 && (
+            {filtered.length === 0 && filter !== "all" && (
               <TableRow className="hover:bg-transparent">
                 <TableCell colSpan={7} className="py-12 text-center text-[13px] text-fog">
                   No tasks match this view.
@@ -175,7 +196,10 @@ export default function TasksPage() {
             )}
           </TableBody>
         </Table>
-      </Card>
+            </Card>
+          )}
+        </>
+      )}
     </div>
   );
 }

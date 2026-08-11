@@ -1,8 +1,9 @@
 "use client";
 
-import { CalendarDays, CheckCircle2 } from "lucide-react";
+import { CalendarDays, CheckCircle2, CalendarOff } from "lucide-react";
 import { PageHeader, Card, CardHeader } from "@/components/dashboard/page-header";
 import { NewTaskDialog } from "@/components/dashboard/dialogs/new-task-dialog";
+import { EmptyState, ErrorState, ChartSkeleton } from "@/components/dashboard/data-states";
 import { useDashboard } from "@/lib/dashboard-store";
 import { addDays, toISODate, TODAY, formatDate } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
@@ -15,10 +16,16 @@ function startOfWeek(date: Date) {
 }
 
 export default function CalendarPage() {
+  const status = useDashboard((state) => state.status);
+  const error = useDashboard((state) => state.error);
+  const syncFromN8n = useDashboard((state) => state.syncFromN8n);
   const tasks = useDashboard((state) => state.tasks);
 
   const weekStart = startOfWeek(new Date());
   const days = Array.from({ length: 7 }, (_, index) => addDays(weekStart, index));
+  const weekTasks = tasks.filter((task) =>
+    days.some((day) => toISODate(day) === task.dueDate),
+  );
 
   const monthLabel = new Intl.DateTimeFormat("en-US", {
     month: "long",
@@ -33,6 +40,22 @@ export default function CalendarPage() {
         actions={<NewTaskDialog />}
       />
 
+      {status === "loading" ? (
+        <>
+          <ChartSkeleton />
+          <ChartSkeleton />
+        </>
+      ) : status === "error" ? (
+        <ErrorState message={error ?? undefined} onRetry={syncFromN8n} />
+      ) : weekTasks.length === 0 ? (
+        <EmptyState
+          icon={CalendarOff}
+          title="Nothing scheduled this week"
+          description="No tasks are due in the next seven days. Add a task or let Komitt plan one from a goal."
+          action={<NewTaskDialog />}
+        />
+      ) : (
+        <>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
         {days.map((day) => {
           const iso = toISODate(day);
@@ -144,6 +167,8 @@ export default function CalendarPage() {
           })}
         </div>
       </Card>
+        </>
+      )}
     </div>
   );
 }

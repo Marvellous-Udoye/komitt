@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { LogOut, RotateCcw, User } from "lucide-react";
+import { LogOut, RotateCcw } from "lucide-react";
 import { PageHeader, Card, CardHeader } from "@/components/dashboard/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,11 +12,18 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboard } from "@/lib/dashboard-store";
-import { clearSession } from "@/lib/auth-session";
+import { getSessionUser, signOut } from "@/lib/auth-session";
+import { UserAvatar } from "@/components/dashboard/user-avatar";
 
 export default function SettingsPage() {
-  const resetDemo = useDashboard((state) => state.resetDemo);
-  const [profile, setProfile] = useState({ name: "Alex Rivera", email: "alex@komitt.co" });
+  const syncFromN8n = useDashboard((state) => state.syncFromN8n);
+  const [profile, setProfile] = useState(() => {
+    const profileUser = getSessionUser();
+    return {
+      name: profileUser?.name ?? "",
+      email: profileUser?.email ?? "",
+    };
+  });
   const [prefs, setPrefs] = useState({
     weekStart: "monday",
     reminder: "18:00",
@@ -28,11 +35,6 @@ export default function SettingsPage() {
   function saveProfile(event: React.FormEvent) {
     event.preventDefault();
     toast.success("Profile saved", { description: "Your account details were updated." });
-  }
-
-  function signOut() {
-    clearSession();
-    window.location.href = "/";
   }
 
   return (
@@ -66,11 +68,7 @@ export default function SettingsPage() {
             <CardHeader
               title="Account"
               description="Your identity across the workspace"
-              trailing={
-                <span className="flex size-7 items-center justify-center rounded-md bg-white/[0.04]">
-                  <User className="size-4 text-fog" />
-                </span>
-              }
+              trailing={<UserAvatar user={getSessionUser()} />}
             />
             <form onSubmit={saveProfile} className="space-y-4">
               <div className="space-y-1.5">
@@ -203,19 +201,19 @@ export default function SettingsPage() {
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-6 rounded-lg border border-graphite/70 bg-obsidian/40 p-4">
                 <div>
-                  <p className="text-[13px] text-mist">Reset demo data</p>
-                  <p className="mt-1 text-[12px] text-fog">Restore the sample goals, tasks, and insights.</p>
+                  <p className="text-[13px] text-mist">Re-sync dashboard data</p>
+                  <p className="mt-1 text-[12px] text-fog">Pull the latest goals, tasks, and stats from n8n.</p>
                 </div>
                 <Button
                   variant="outline"
                   onClick={() => {
-                    resetDemo();
-                    toast.success("Demo data reset");
+                    syncFromN8n();
+                    toast.success("Data re-synced");
                   }}
                   className="h-9 gap-2 rounded-md border-graphite bg-transparent text-[12px] text-mist hover:bg-white/[0.05]"
                 >
                   <RotateCcw className="size-3.5" />
-                  Reset
+                  Re-sync
                 </Button>
               </div>
               <div className="flex items-center justify-between gap-6 rounded-lg border border-graphite/70 bg-obsidian/40 p-4">
