@@ -47,17 +47,19 @@ export function NewGoalDialog({
           title: title.trim(),
           description: description.trim(),
         });
-        const goal = result.goal;
-        if (!goal) throw new Error("The plan service returned no goal.");
-        applyGoalBreakdown({
-          goalId: goal.id,
-          title: goal.title,
-          description: goal.description ?? "",
-          category,
-          dueDate,
-          milestones: result.milestones?.length ?? 0,
-          tasks: result.tasks ?? [],
-        });
+        if (result?.goal) {
+          applyGoalBreakdown({
+            goalId: result.goal.id,
+            title: result.goal.title,
+            description: result.goal.description ?? "",
+            category,
+            dueDate,
+            milestones: result.milestones?.length ?? 0,
+            tasks: result.tasks ?? [],
+          });
+        } else {
+          useDashboard.getState().syncFromN8n().catch(() => undefined);
+        }
         setOpen(false);
         setTitle("");
         setDescription("");
@@ -68,7 +70,7 @@ export function NewGoalDialog({
         });
       } catch (error) {
         toast.error("Goal creation failed", {
-          description: error instanceof Error ? error.message : "Could not reach the n8n webhook.",
+          description: error instanceof Error ? error.message : "Could not reach the plan service.",
         });
       } finally {
         setPending(false);
@@ -137,7 +139,7 @@ export function NewGoalDialog({
             <div className="space-y-1.5">
               <Label className="text-[12px] text-fog">Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="h-10 rounded-md bg-obsidian/40 text-[13px] text-mist">
+                <SelectTrigger className="h-10 rounded-md bg-obsidian/40 text-[13px] text-mist w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="border-graphite bg-obsidian text-mist">

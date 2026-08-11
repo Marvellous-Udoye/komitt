@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, BarChart3, CalendarClock, CheckCircle2, Flame, Goal, ListTodo, Plus, Sparkles, Target } from "lucide-react";
+import { ArrowRight, BarChart3, CalendarClock, CheckCircle2, Flame, Goal, ListTodo, Plus, Sparkles, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardHeader, PageHeader } from "@/components/dashboard/page-header";
@@ -13,9 +13,6 @@ import { CheckinDialog } from "@/components/dashboard/dialogs/checkin-dialog";
 import { EmptyState, ErrorState, StatGridSkeleton, ChartSkeleton, QueueRowsSkeleton, TableRowsSkeleton, CoachSkeleton } from "@/components/dashboard/data-states";
 import { useDashboard } from "@/lib/dashboard-store";
 import { useUser } from "@/lib/user-store";
-import { isRealSession } from "@/lib/auth-session";
-import { config } from "@/lib/config";
-import { isLiveMode } from "@/lib/n8n-client";
 import { formatDate, TODAY } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 
@@ -67,29 +64,6 @@ export default function OverviewPage() {
           </>
         }
       />
-
-      {isRealSession() && !config.n8nBaseUrl && (
-        <div className="hairline flex items-start gap-2.5 rounded-lg border-amber-400/30 bg-amber-400/[0.05] px-4 py-3">
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-300" />
-          <p className="text-[13px] leading-relaxed text-amber-100/90">
-            Google login works, but n8n isn&apos;t configured, so the app runs on demo data. Set{" "}
-            <span className="font-mono text-[12px] text-amber-200">
-              NEXT_PUBLIC_N8N_BASE_URL
-            </span>{" "}
-            in <span className="font-mono text-[12px] text-amber-200">.env.local</span> (e.g.{" "}
-            <span className="font-mono text-[12px] text-amber-200">http://localhost:5678</span>)
-            and restart the dev server to send real webhook requests.
-          </p>
-        </div>
-      )}
-      {isLiveMode() && (
-        <div className="hairline flex items-center gap-2.5 rounded-lg border-pulse-green/30 bg-pulse-green/[0.05] px-4 py-2.5">
-          <span className="size-1.5 rounded-full bg-pulse-green" />
-          <p className="text-[13px] text-pulse-green/90">
-            Live — syncing goals, tasks, and check-ins with your n8n webhooks.
-          </p>
-        </div>
-      )}
 
       {status === "loading" ? (
         <>

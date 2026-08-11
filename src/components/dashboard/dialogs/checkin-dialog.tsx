@@ -58,7 +58,8 @@ export function CheckinDialog({
           completion_status: status,
           reflection: reflection.trim(),
         });
-        setFeedback(result.feedback ?? submitCheckin(status, reflection.trim()));
+        setFeedback(result?.feedback ?? submitCheckin(status, reflection.trim()));
+        useDashboard.getState().syncFromN8n().catch(() => undefined);
         toast.success("Check-in submitted", {
           description: "Your coach has reviewed your day.",
         });
@@ -144,7 +145,7 @@ export function CheckinDialog({
                     type="button"
                     onClick={() => setStatus(option.value)}
                     className={cn(
-                      "flex h-11 flex-col items-center justify-center gap-1 rounded-md border text-[12px] transition-colors",
+                      "flex h-14 cursor-pointer flex-col items-center justify-center gap-1 rounded-md border text-[12px] transition-colors",
                       selected
                         ? "border-acid-lime/60 bg-acid-lime/10 text-acid-lime"
                         : "border-graphite bg-obsidian/40 text-fog hover:border-smoke hover:text-mist",
