@@ -43,45 +43,36 @@ export default function Home() {
       <section className="relative pt-32 sm:pt-40">
         <div className="hero-grid pointer-events-none absolute inset-0 -z-10" />
         <div className="mx-auto max-w-[1200px] px-6">
-          <div className="grid items-end gap-8 lg:grid-cols-[1fr_auto]">
-            <div className="max-w-3xl">
-              <span className="inline-flex items-center gap-2 rounded-full border border-graphite bg-carbon px-3 py-1.5 text-[12px] text-fog">
-                <span className="size-1.5 rounded-full bg-acid-lime" />
-                AI accountability system
-              </span>
-              <h1 className="mt-6 text-[clamp(2.75rem,6vw,4rem)] font-[510] leading-[1] tracking-[-0.022em] text-paper">
-                Turn your goals into daily proof of progress.
-              </h1>
-              <p className="mt-6 max-w-xl text-[16px] leading-relaxed text-fog">
-                Komitt breaks ambitious goals into plans, checks in with you every day,
-                and coaches the next move before momentum slips.
-              </p>
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Link
-                  href="/signup"
-                  className="inline-flex h-10 items-center gap-2 rounded-md bg-acid-lime px-4 text-[14px] font-[510] tracking-[-0.011em] text-void transition-opacity hover:opacity-90"
-                >
-                  Create my plan
-                  <ArrowRight className="size-4" />
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="inline-flex h-10 items-center gap-2 rounded-md border border-graphite px-4 text-[13px] text-mist transition-colors hover:border-smoke hover:text-paper"
-                >
-                  View live dashboard
-                </Link>
-              </div>
-              <p className="mt-4 text-[13px] text-ash">
-                No complicated setup. Just a daily loop that keeps you honest.
-              </p>
+          <div className="mx-auto flex max-w-3xl flex-col items-start text-left lg:items-center lg:text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-graphite bg-carbon px-3 py-1.5 text-[12px] text-fog">
+              <span className="size-1.5 rounded-full bg-acid-lime" />
+              AI accountability system
+            </span>
+            <h1 className="mt-6 text-[clamp(2.75rem,6vw,4rem)] font-[510] leading-[1] tracking-[-0.022em] text-paper">
+              Turn your goals into daily proof of progress.
+            </h1>
+            <p className="mt-6 text-[16px] leading-relaxed text-fog">
+              Komitt breaks ambitious goals into plans, checks in with you every day,
+              and coaches the next move before momentum slips.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-start gap-3 lg:justify-center">
+              <Link
+                href="/signup"
+                className="inline-flex h-10 items-center gap-2 rounded-md bg-acid-lime px-4 text-[14px] font-[510] tracking-[-0.011em] text-void transition-opacity hover:opacity-90"
+              >
+                Create my plan
+                <ArrowRight className="size-4" />
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex h-10 items-center gap-2 rounded-md border border-graphite px-4 text-[13px] text-mist transition-colors hover:border-smoke hover:text-paper"
+              >
+                View live dashboard
+              </Link>
             </div>
-            <Link
-              href="#workflow"
-              className="group hidden items-center gap-1.5 text-[13px] text-fog transition-colors hover:text-paper lg:inline-flex"
-            >
-              See how it works
-              <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
+            <p className="mt-4 text-[13px] text-ash">
+              No complicated setup. Just a daily loop that keeps you honest.
+            </p>
           </div>
         </div>
 
