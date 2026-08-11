@@ -180,6 +180,3 @@ Komitt can be deployed to any Next.js-compatible host. For production:
 - Configure n8n credentials for Supabase Postgres, OpenAI, and SMTP
 - Confirm webhook URLs are reachable from the deployed frontend
 
-## Status
-
-Komitt currently includes the public landing page, auth entry flow, dashboard UI, webhook client, SEO metadata, app icon, and social sharing image. Live persistence and AI behavior depend on the connected Supabase and n8n workflow configuration.
