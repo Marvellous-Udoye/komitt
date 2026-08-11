@@ -3,13 +3,14 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Menu, Search, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useDashboard } from "@/lib/dashboard-store";
 import { useUser } from "@/lib/user-store";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { isLiveMode } from "@/lib/n8n-client";
-import { isRealSession, signOut } from "@/lib/auth-session";
+import { backendSignOut, isRealSession } from "@/lib/auth-session";
 import { cn } from "@/lib/utils";
 
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
@@ -21,6 +22,14 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const goals = useDashboard((state) => state.goals);
   const insights = useDashboard((state) => state.insights);
   const live = isLiveMode();
+
+  function signOut() {
+    backendSignOut();
+    toast.success("Signed out", {
+      description: "Your session has closed. See you next time.",
+    });
+    router.replace("/");
+  }
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();

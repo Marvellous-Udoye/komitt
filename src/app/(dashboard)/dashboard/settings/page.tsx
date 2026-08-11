@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LogOut, RotateCcw } from "lucide-react";
 import { PageHeader, Card, CardHeader } from "@/components/dashboard/page-header";
@@ -12,10 +13,11 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDashboard } from "@/lib/dashboard-store";
-import { getSessionUser, signOut } from "@/lib/auth-session";
+import { backendSignOut, getSessionUser } from "@/lib/auth-session";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
 
 export default function SettingsPage() {
+  const router = useRouter();
   const syncFromN8n = useDashboard((state) => state.syncFromN8n);
   const [profile, setProfile] = useState(() => {
     const profileUser = getSessionUser();
@@ -223,7 +225,13 @@ export default function SettingsPage() {
                 </div>
                 <Button
                   variant="outline"
-                  onClick={signOut}
+                  onClick={() => {
+                    backendSignOut();
+                    toast.success("Signed out", {
+                      description: "Your session has closed. See you next time.",
+                    });
+                    router.replace("/");
+                  }}
                   className="h-9 gap-2 rounded-md border-graphite bg-transparent text-[12px] text-coral-red hover:bg-coral-red/10 hover:border-coral-red/40"
                 >
                   <LogOut className="size-3.5" />

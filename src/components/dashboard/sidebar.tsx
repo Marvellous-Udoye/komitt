@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Flame, LogOut } from "lucide-react";
+import { toast } from "sonner";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/dashboard/user-avatar";
 import { mainNav, systemNav } from "@/components/dashboard/nav-config";
 import { useDashboard } from "@/lib/dashboard-store";
 import { useUser } from "@/lib/user-store";
-import { signOut } from "@/lib/auth-session";
+import { backendSignOut } from "@/lib/auth-session";
 import { cn } from "@/lib/utils";
 
 function NavGroup({
@@ -61,8 +62,17 @@ function NavGroup({
 
 export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const router = useRouter();
   const streak = useDashboard((state) => state.liveStreak ?? state.streak);
   const user = useUser((state) => state.user);
+
+  function signOut() {
+    backendSignOut();
+    toast.success("Signed out", {
+      description: "Your session has closed. See you next time.",
+    });
+    router.replace("/");
+  }
 
   return (
     <div className="flex h-full flex-col border-r border-graphite/70 bg-carbon">

@@ -1,19 +1,56 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Topbar } from "@/components/dashboard/topbar";
 import { useUser } from "@/lib/user-store";
 import { useDashboard } from "@/lib/dashboard-store";
+import {
+  backendSignOut,
+  isRealSession,
+  isSessionExpired,
+  refreshSession,
+} from "@/lib/auth-session";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     useUser.getState().hydrate();
-    useDashboard.getState().syncFromN8n().catch(() => undefined);
-  }, []);
+
+    const start = async () => {
+      if (!isRealSession()) {
+        router.replace("/");
+        return;
+      }
+
+      if (isSessionExpired()) {
+        const refreshed = await refreshSession();
+        if (!refreshed) {
+          backendSignOut();
+          toast.error("Session expired", {
+            description: "Please sign in again to continue.",
+          });
+          router.replace("/");
+          return;
+        }
+      }
+
+      setAuthorized(true);
+      useDashboard.getState().syncFromN8n().catch(() => undefined);
+    };
+
+    start();
+  }, [router]);
+
+  if (!authorized) {
+    return <div className="min-h-screen bg-void" aria-hidden="true" />;
+  }
 
   return (
     <div className="min-h-screen bg-void">

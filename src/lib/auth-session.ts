@@ -186,3 +186,24 @@ export function signOut() {
 
   window.location.href = "/";
 }
+
+export function backendSignOut() {
+  const token = getStoredSession()?.accessToken;
+  clearSession();
+  if (token && config.supabaseUrl) {
+    fetch(`${config.supabaseUrl}/auth/v1/logout`, {
+      method: "POST",
+      headers: {
+        apikey: config.supabaseAnonKey,
+        Authorization: `Bearer ${token}`,
+      },
+    }).catch(() => undefined);
+  }
+}
+
+export function isSessionExpired(): boolean {
+  const session = getStoredSession();
+  if (!session?.accessToken || session.accessToken === "demo-session-token") return false;
+  if (!session.expiresAt) return false;
+  return session.expiresAt <= Date.now();
+}
