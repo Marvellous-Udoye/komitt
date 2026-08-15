@@ -3,7 +3,6 @@
 import { create } from "zustand";
 import {
   TODAY,
-  toISODate,
   type Checkin,
   type Goal,
   type GoalStatus,

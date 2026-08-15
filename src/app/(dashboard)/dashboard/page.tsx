@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BarChart3, CalendarClock, CheckCircle2, Flame, Goal, ListChecks, Plus, Sparkles, Target } from "lucide-react";
+import { ArrowRight, BarChart3, CalendarClock, CheckCircle2, Flame, Goal, ListChecks, Plus, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardHeader, PageHeader } from "@/components/dashboard/page-header";
