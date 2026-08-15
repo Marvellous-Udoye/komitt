@@ -68,9 +68,9 @@ export default function OverviewPage() {
         <ErrorState message={error ?? undefined} onRetry={syncFromN8n} />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
             <StatCard icon={Goal} label="Goals completed" value={goalsCompleted} />
-            <StatCard icon={CheckCircle2} label="Milestones completed" value={milestonesDone} hint={`${todayDone}/${todayMilestones.length} due today`} />
+            <StatCard icon={CheckCircle2} label="Milestones Done" value={milestonesDone} hint={`${todayDone}/${todayMilestones.length} due today`} />
             <StatCard icon={BarChart3} label="Weekly consistency" value={consistency} />
             <StatCard icon={Flame} label="Current streak" value={`${streakValue}d`} accent />
           </div>

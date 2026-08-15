@@ -17,7 +17,7 @@ export function StatCard({
 }) {
   return (
     <div className="hairline relative overflow-hidden rounded-xl bg-carbon p-5">
-      <div className="flex items-start justify-between">
+      <div className="flex items-start max-sm:gap-4 justify-between">
         <span
           className={cn(
             "flex size-8 items-center justify-center rounded-md",
