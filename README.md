@@ -1,6 +1,6 @@
 # Komitt
 
-Komitt is an AI-powered accountability platform for turning ambitious goals into practical execution loops. Users create goals, receive structured plans, complete daily check-ins, get personalized coaching feedback, and monitor progress through a focused dashboard.
+Komitt is an AI-powered skill-accountability platform for turning learning goals into milestone-based execution loops. Users define what they want to learn, why it matters, which real-world outcome it supports, then check in against specific milestones and receive immediate coaching feedback.
 
 The product is built as a clean Next.js frontend that connects to automation workflows for planning, reminders, coaching, and reporting.
 
@@ -13,19 +13,27 @@ Komitt helps users answer four questions every day:
 - Did I follow through today?
 - What needs to change tomorrow?
 
-The experience is intentionally simple for users: sign in, create a goal, review the plan, complete daily tasks, check in, and let the coach adapt the next step.
+The experience is intentionally simple for users: sign in, create a learning goal, define or generate milestones, check in against a specific milestone, and let the coach adapt the next step.
+
+Komitt's product position is:
+
+> It's not telling you what you have to do, you already know what you want to do, it's making you accountable for that.
 
 ## Core Features
 
 - **Google sign-in** through Supabase Auth
-- **Goal creation** for high-level outcomes such as learning a skill, losing weight, launching a startup, or reading more books
-- **AI plan generation** that breaks goals into milestones and actionable tasks
-- **Task management** with priority, due date, estimated duration, and completion state
-- **Daily check-ins** with yes, partial, and no completion options
-- **Reflection capture** for blockers, context, and behavior patterns
-- **AI accountability feedback** based on progress, postponed tasks, and check-in history
-- **Execution dashboard** with goals completed, tasks completed, weekly consistency, current streak, upcoming deadlines, task queue, and coaching insights
-- **Email reminders** for daily accountability
+- **Learning goal creation** with required context, application/use-case tags, and target timing
+- **Three-step goal wizard** for context, milestone structure, and schedule planning
+- **AI milestone preview** through a non-destructive generation step before saving
+- **Editable milestone plans** where users can add, remove, reorder, and date milestones
+- **Milestone accountability** as the smallest unit of progress; tasks are intentionally not part of the model
+- **Milestone check-ins** tied to one goal and one milestone, with multiple check-ins per day supported
+- **Voice transcription** for goal descriptions and check-in context
+- **Immediate AI coach feedback** returned after each check-in
+- **Check-in history timeline** grouped by goal and milestone
+- **Execution dashboard** with goals completed, milestones completed, weekly consistency, current streak, upcoming milestone deadlines, and coaching insights
+- **Configurable daily summary hour** through `profiles.notification_hour`
+- **Email summaries** for daily accountability
 - **Responsive app shell** with desktop sidebar, sticky search header, mobile navigation, and floating goal creation action
 
 ## Tech Stack
@@ -66,9 +74,13 @@ The frontend expects these webhook endpoints from the n8n backend:
 
 | Method | Webhook | Purpose | Body |
 |---|---|---|---|
-| `POST` | `/webhook/goal-create` | Create a goal and trigger AI plan breakdown | `{ title, description }` |
-| `POST` | `/webhook/checkin` | Save the daily check-in and trigger coaching feedback | `{ completion_status, reflection }` |
-| `GET` | `/webhook/dashboard` | Fetch dashboard metrics, deadlines, and insights | none |
+| `POST` | `/webhook/generate-milestones` | Preview AI-suggested milestones without saving | `{ title, description, application_tags }` |
+| `POST` | `/webhook/goal-create` | Persist the final goal and milestone list | `{ title, description, application_tags, milestones_source, target_start_date, target_end_date, milestones }` |
+| `POST` | `/webhook/checkin` | Save a milestone check-in and return AI feedback | `{ goal_id, milestone_id, context, marks_milestone_complete }` |
+| `GET` | `/webhook/dashboard` | Fetch dashboard metrics and upcoming milestone deadlines | none |
+| `GET` | `/webhook/milestones?goal_id=X` | Fetch milestones for one goal | none |
+| `GET` | `/webhook/checkin-history?goal_id=X&milestone_id=Y` | Fetch check-in history for one goal/milestone pair | none |
+| `POST` | `/webhook/transcribe` | Convert voice input to text | `{ audio_base64, mime_type }` |
 
 Every live request sends the user session token as:
 
@@ -79,7 +91,7 @@ Authorization: Bearer <supabase-access-token>
 n8n should verify the token before reading or writing user data. The workflow set is expected to handle:
 
 - Supabase user verification
-- Goal, milestone, task, check-in, and insight writes
+- Goal, milestone, check-in, and insight writes
 - Dashboard metric queries
 - OpenAI coaching and planning prompts
 - Email delivery
@@ -151,6 +163,7 @@ src/
     auth-session.ts           Browser session helpers
     config.ts                 Public runtime config
     n8n-client.ts             Webhook client
+    supabase-client.ts        Authenticated Supabase reads and narrow profile/milestone updates
 public/
   icon.svg                    App icon
   og.svg                      Social sharing preview
@@ -163,20 +176,7 @@ The n8n workflows are designed around these Supabase tables:
 - `profiles`
 - `goals`
 - `milestones`
-- `tasks`
 - `checkins`
 - `ai_insights`
 
-Supabase Auth owns the user identity. Application tables should reference the authenticated user and remain protected with row-level security for any direct client-side reads.
-
-## Deployment Notes
-
-Komitt can be deployed to any Next.js-compatible host. For production:
-
-- Configure Google OAuth in Supabase
-- Add the public Supabase URL and anon key to the hosting environment
-- Add the n8n base URL to the hosting environment
-- Import and activate the n8n workflows
-- Configure n8n credentials for Supabase Postgres, OpenAI, and SMTP
-- Confirm webhook URLs are reachable from the deployed frontend
-
+Supabase Auth owns the user identity. All live frontend reads use the user's Supabase access token so row-level security keeps each user's goals, milestones, check-ins, and insights scoped to that user.
