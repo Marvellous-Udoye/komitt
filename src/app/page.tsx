@@ -15,7 +15,7 @@ export default function Home() {
     applicationCategory: "ProductivityApplication",
     operatingSystem: "Web",
     description:
-      "Komitt is an AI accountability coach that turns ambitious goals into clear plans, daily check-ins, personalized coaching, and progress dashboards.",
+      "Komitt is an AI skill-accountability coach that turns learning goals into milestones, check-ins, personalized coaching, and progress dashboards.",
     offers: {
       "@type": "Offer",
       price: "0",
@@ -52,8 +52,9 @@ export default function Home() {
               Turn your goals into daily proof of progress.
             </h1>
             <p className="mt-6 text-[16px] leading-relaxed text-fog">
-              Komitt breaks ambitious goals into plans, checks in with you every day,
-              and coaches the next move before momentum slips.
+              Komitt turns learning goals into milestone accountability. It&apos;s not
+              telling you what you have to do, you already know what you want to
+              do, it&apos;s making you accountable for that.
             </p>
             <div className="mt-8 flex flex-wrap items-center justify-start gap-3 lg:justify-center">
               <Link
@@ -98,9 +99,8 @@ export default function Home() {
               One connected system, split into clean plans.
             </h2>
             <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-fog">
-              High-level goals become milestones and tasks that feel realistic,
-              scheduled, and easy to review. The plan is generated for you and stays
-              usable every day.
+              High-level learning goals become dated milestones that feel realistic,
+              specific, and easy to review. The plan stays usable every day.
             </p>
           </div>
           <PlanMock />
@@ -118,9 +118,9 @@ export default function Home() {
               Check-ins that take seconds, feedback that adapts.
             </h2>
             <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-fog">
-              Report yes, partial, or no, add a short reflection, and trigger
-              coaching immediately. Komitt spots postponed tasks and low-consistency
-              windows before they become patterns.
+              Select the goal and milestone, add context, and get coaching
+              immediately. Komitt spots low-consistency windows before they become
+              patterns.
             </p>
           </div>
         </div>
@@ -136,7 +136,7 @@ export default function Home() {
               A dashboard that makes accountability visible.
             </h2>
             <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-fog">
-              Goals completed, tasks completed, weekly consistency, current streak,
+              Goals completed, milestones completed, weekly consistency, current streak,
               and upcoming deadlines in one focused workspace. Read progress fast,
               act sooner.
             </p>
@@ -169,7 +169,7 @@ export default function Home() {
             <div className="mt-6 grid grid-cols-3 gap-3">
               {[
                 { label: "active goals", value: "4" },
-                { label: "tasks done", value: "31" },
+                { label: "milestones done", value: "31" },
                 { label: "consistency", value: "86%" },
               ].map((metric) => (
                 <div key={metric.label} className="rounded-lg border border-graphite/70 bg-obsidian/50 p-4">

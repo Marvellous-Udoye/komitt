@@ -10,10 +10,10 @@ const bars = [
   { key: "sun", day: "S", value: 60 },
 ];
 
-const tasks = [
-  { title: "Draft landing page hero", time: "35 min", done: true },
-  { title: "Ship onboarding copy", time: "20 min", done: false },
-  { title: "Evening workout", time: "30 min", done: false },
+const milestones = [
+  { title: "Map backend fundamentals", date: "Aug 18", done: true },
+  { title: "Ship one API project", date: "Aug 24", done: false },
+  { title: "Apply for five backend roles", date: "Sep 02", done: false },
 ];
 
 export function ProductScreenshot() {
@@ -67,12 +67,12 @@ export function ProductScreenshot() {
           </div>
 
           <div className="space-y-2">
-            {tasks.map((task) => (
+            {milestones.map((milestone) => (
               <div
-                key={task.title}
+                key={milestone.title}
                 className="flex items-center gap-3 rounded-lg border border-graphite/70 bg-obsidian/40 px-3 py-2.5"
               >
-                {task.done ? (
+                {milestone.done ? (
                   <span className="flex size-4 items-center justify-center rounded-full bg-acid-lime">
                     <Check className="size-3 text-void" />
                   </span>
@@ -80,11 +80,11 @@ export function ProductScreenshot() {
                   <Circle className="size-4 text-fog/50" />
                 )}
                 <span
-                  className={`flex-1 text-[13px] ${task.done ? "text-fog line-through" : "text-mist"}`}
+                  className={`flex-1 text-[13px] ${milestone.done ? "text-fog line-through" : "text-mist"}`}
                 >
-                  {task.title}
+                  {milestone.title}
                 </span>
-                <span className="font-mono text-[11px] text-fog">{task.time}</span>
+                <span className="font-mono text-[11px] text-fog">{milestone.date}</span>
               </div>
             ))}
           </div>
@@ -122,7 +122,7 @@ export function ProductScreenshot() {
         </span>
         <p className="text-[13px] leading-relaxed text-fog">
           <span className="font-[510] text-mist">Coach:</span> You complete more work before
-          noon. Move the pitch deck task earlier tomorrow to protect your streak.
+          noon. Keep the API project milestone visible tomorrow to protect your streak.
         </p>
       </div>
     </div>

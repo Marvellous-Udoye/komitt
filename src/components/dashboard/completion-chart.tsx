@@ -20,7 +20,7 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Array<{
       <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-fog">{point.day}</p>
       <p className="mt-1 text-[13px] text-mist">
         <span className="font-[510] text-acid-lime">{point.completed}</span>
-        <span className="text-fog"> / {point.total} tasks</span>
+        <span className="text-fog"> / {point.total} milestones</span>
       </p>
     </div>
   );

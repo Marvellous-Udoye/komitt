@@ -11,6 +11,7 @@ const categoryMeta = {
   coaching: { icon: Bot, label: "Coaching" },
   consistency: { icon: TrendingUp, label: "Consistency" },
   warning: { icon: AlertTriangle, label: "Warning" },
+  checkin_feedback: { icon: Sparkles, label: "Check-in feedback" },
 } as const;
 
 export default function InsightsPage() {
@@ -23,7 +24,7 @@ export default function InsightsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Insights"
-        description="Behavioral signals your coach has noticed across goals, tasks, and check-ins."
+        description="Behavioral signals your coach has noticed across goals, milestones, and check-ins."
       />
 
       {status === "loading" ? (
@@ -34,7 +35,7 @@ export default function InsightsPage() {
         <EmptyState
           icon={MessageSquarePlus}
           title="No insights yet"
-          description="Komitt will surface coaching notes here after it sees enough check-ins, postponements, and completion patterns."
+          description="Komitt will surface coaching notes here after it sees enough check-ins, milestone progress, and completion patterns."
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -53,6 +54,7 @@ export default function InsightsPage() {
                   className={cn(
                     "flex size-8 items-center justify-center rounded-md",
                     insight.category === "coaching" && "bg-acid-lime/10",
+                    insight.category === "checkin_feedback" && "bg-acid-lime/10",
                     insight.category === "consistency" && "bg-signal-teal/10",
                     insight.category === "warning" && "bg-coral-red/10",
                   )}
@@ -61,6 +63,7 @@ export default function InsightsPage() {
                     className={cn(
                       "size-4",
                       insight.category === "coaching" && "text-acid-lime",
+                      insight.category === "checkin_feedback" && "text-acid-lime",
                       insight.category === "consistency" && "text-signal-teal",
                       insight.category === "warning" && "text-coral-red",
                     )}
@@ -90,7 +93,7 @@ export default function InsightsPage() {
           <Sparkles className="size-4 text-acid-lime" />
         </span>
         <p className="text-[13px] leading-relaxed text-fog">
-          Insights are generated from your check-ins, postponed tasks, and completion
+          Insights are generated from your check-ins, milestone progress, and completion
           patterns. Complete more check-ins to make the coaching sharper.
         </p>
       </div>

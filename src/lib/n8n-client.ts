@@ -2,6 +2,7 @@
 
 import { config } from "@/lib/config";
 import { getStoredSession, refreshSession } from "@/lib/auth-session";
+import type { Goal, Milestone } from "@/lib/demo-data";
 
 type RequestOptions = {
   token?: string;
@@ -28,7 +29,7 @@ async function request<T>(path: string, method: "GET" | "POST", options: Request
 
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new Error(`n8n request failed (${response.status})${detail ? ` — ${detail}` : ""}`);
+    throw new Error(`n8n request failed (${response.status})${detail ? ` - ${detail}` : ""}`);
   }
 
   const text = await response.text().catch(() => "");
@@ -47,62 +48,100 @@ export function isLiveMode() {
   return Boolean(token && token !== "demo-session-token");
 }
 
-export type N8nUpcomingDeadline = {
-  id: string;
+export type MilestoneDraft = {
   title: string;
-  due_date: string;
-  priority: string;
+  order_index: number;
+  start_date?: string | null;
+  end_date?: string | null;
 };
 
 export type N8nDashboard = {
-  success: boolean;
+  success?: boolean;
   goals_completed: number;
-  tasks_completed: number;
-  weekly_consistency: string;
+  milestones_completed: number;
+  weekly_consistency: string | number;
   current_streak: number;
-  upcoming_deadlines: N8nUpcomingDeadline[];
-};
-
-export type N8nTaskInput = {
-  id: string;
-  title: string;
-  priority?: string | null;
-  due_date?: string | null;
-  estimated_duration_minutes?: number | null;
-  milestone_id?: string;
+  upcoming_milestone_deadlines: Array<{
+    id: string;
+    goal_id?: string;
+    title: string;
+    end_date?: string | null;
+    due_date?: string | null;
+    status?: string;
+  }>;
 };
 
 export type N8nCreateGoalResult = {
   success: boolean;
-  goal?: {
-    id: string;
-    user_id?: string;
-    title: string;
-    description: string | null;
-  };
-  milestones?: Array<{ id: string; title: string; order_index?: number }>;
-  tasks?: N8nTaskInput[];
+  goal?: Partial<Goal> & { id: string };
+  milestones?: Array<Partial<Milestone> & { id: string; title: string }>;
 };
 
 export type N8nCheckinResult = {
-  success: boolean;
+  success?: boolean;
   feedback?: string;
+};
+
+export type N8nCheckinHistoryResult = {
+  history: Array<{
+    id: string;
+    context: string;
+    feedback?: string | null;
+    created_at: string;
+    marks_milestone_complete?: boolean;
+  }>;
 };
 
 export function getDashboard(token?: string) {
   return request<N8nDashboard>("dashboard", "GET", { token });
 }
 
+export function generateMilestonesLive(
+  token: string | undefined,
+  body: { title: string; description: string; application_tags: string[] },
+) {
+  return request<{ milestones: MilestoneDraft[] }>("generate-milestones", "POST", { token, body });
+}
+
 export function createGoalLive(
   token: string | undefined,
-  body: { title: string; description: string },
+  body: {
+    title: string;
+    description: string;
+    application_tags: string[];
+    milestones_source: "ai_generated" | "user_provided";
+    target_start_date: string | null;
+    target_end_date: string;
+    milestones: MilestoneDraft[];
+  },
 ) {
   return request<N8nCreateGoalResult>("goal-create", "POST", { token, body });
 }
 
 export function submitCheckinLive(
   token: string | undefined,
-  body: { completion_status: "yes" | "partially" | "no"; reflection: string },
+  body: {
+    goal_id: string;
+    milestone_id: string;
+    context: string;
+    marks_milestone_complete: boolean;
+  },
 ) {
   return request<N8nCheckinResult>("checkin", "POST", { token, body });
+}
+
+export function getMilestonesLive(token: string | undefined, goalId: string) {
+  return request<{ milestones: Milestone[] }>(`milestones?goal_id=${encodeURIComponent(goalId)}`, "GET", { token });
+}
+
+export function getCheckinHistoryLive(token: string | undefined, goalId: string, milestoneId: string) {
+  return request<N8nCheckinHistoryResult>(
+    `checkin-history?goal_id=${encodeURIComponent(goalId)}&milestone_id=${encodeURIComponent(milestoneId)}`,
+    "GET",
+    { token },
+  );
+}
+
+export function transcribeLive(token: string | undefined, body: { audio_base64: string; mime_type: string }) {
+  return request<{ text: string }>("transcribe", "POST", { token, body });
 }

@@ -7,7 +7,7 @@ export const contentType = "image/png";
 
 const stats = [
   { value: "3", label: "goals done" },
-  { value: "31", label: "tasks done" },
+  { value: "31", label: "milestones done" },
   { value: "86%", label: "consistency" },
 ];
 

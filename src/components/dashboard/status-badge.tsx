@@ -36,42 +36,29 @@ export function StatusBadge({
   );
 }
 
-export function taskStatusTone(status: string): BadgeTone {
+export function milestoneStatusTone(status: string): BadgeTone {
   switch (status) {
-    case "done":
+    case "completed":
       return "green";
     case "in_progress":
       return "lime";
-    case "todo":
+    case "pending":
       return "neutral";
     default:
       return "neutral";
   }
 }
 
-export function taskStatusLabel(status: string) {
+export function milestoneStatusLabel(status: string) {
   switch (status) {
-    case "done":
-      return "Done";
+    case "completed":
+      return "Completed";
     case "in_progress":
       return "In progress";
-    case "todo":
-      return "Todo";
+    case "pending":
+      return "Pending";
     default:
       return status;
-  }
-}
-
-export function priorityTone(priority: string): BadgeTone {
-  switch (priority) {
-    case "high":
-      return "red";
-    case "medium":
-      return "teal";
-    case "low":
-      return "neutral";
-    default:
-      return "neutral";
   }
 }
 
@@ -79,6 +66,8 @@ export function goalStatusTone(status: string): BadgeTone {
   switch (status) {
     case "active":
       return "lime";
+    case "not_started":
+      return "neutral";
     case "paused":
       return "neutral";
     case "completed":

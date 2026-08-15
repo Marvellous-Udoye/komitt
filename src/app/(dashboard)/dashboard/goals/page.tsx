@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 
 const statuses: Array<{ value: "all" | GoalStatus; label: string }> = [
   { value: "all", label: "All" },
+  { value: "not_started", label: "Not started" },
   { value: "active", label: "Active" },
   { value: "paused", label: "Paused" },
   { value: "completed", label: "Completed" },
@@ -34,7 +35,7 @@ export default function GoalsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Goals"
-        description="High-level outcomes you're executing on. Each one becomes a plan of milestones and tasks."
+        description="Learning outcomes you want accountability for. Each goal owns its use-case context and milestone plan."
         actions={<NewGoalDialog />}
       />
 
@@ -75,7 +76,7 @@ export default function GoalsPage() {
             <EmptyState
               icon={Trophy}
               title="No goals yet"
-              description="Goals turn into milestone-backed plans with scheduled tasks. Create your first one to start the loop."
+              description="Goals turn into milestone-backed accountability plans. Create your first one to start the loop."
               action={<NewGoalDialog />}
             />
           ) : (
@@ -87,13 +88,13 @@ export default function GoalsPage() {
                 Goal
               </TableHead>
               <TableHead className="hidden text-[11px] font-normal uppercase tracking-[0.08em] text-fog md:table-cell">
-                Category
+                Use-case
               </TableHead>
               <TableHead className="hidden text-[11px] font-normal uppercase tracking-[0.08em] text-fog lg:table-cell">
                 Progress
               </TableHead>
               <TableHead className="hidden text-[11px] font-normal uppercase tracking-[0.08em] text-fog md:table-cell">
-                Due
+                Target end
               </TableHead>
               <TableHead className="text-right pr-6 text-[11px] font-normal uppercase tracking-[0.08em] text-fog">
                 Status
@@ -124,7 +125,11 @@ export default function GoalsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="hidden py-4 md:table-cell">
-                    <StatusBadge tone="violet">{goal.category}</StatusBadge>
+                    <div className="flex flex-wrap gap-1">
+                      {(goal.applicationTags.length ? goal.applicationTags : ["General"]).slice(0, 2).map((tag) => (
+                        <StatusBadge key={tag} tone="violet">{tag}</StatusBadge>
+                      ))}
+                    </div>
                   </TableCell>
                   <TableCell className="hidden py-4 lg:table-cell">
                     <div className="flex max-w-[160px] items-center gap-2.5">
@@ -135,7 +140,7 @@ export default function GoalsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="hidden py-4 md:table-cell">
-                    <span className="font-mono text-[11px] text-fog">{formatDate(goal.dueDate)}</span>
+                    <span className="font-mono text-[11px] text-fog">{formatDate(goal.targetEndDate)}</span>
                   </TableCell>
                   <TableCell className="py-4 pr-6 text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -151,6 +156,7 @@ export default function GoalsPage() {
                         </SelectTrigger>
                         <SelectContent className="border-graphite bg-obsidian text-mist">
                           <SelectItem value="active" className="text-[12px]">Active</SelectItem>
+                          <SelectItem value="not_started" className="text-[12px]">Not started</SelectItem>
                           <SelectItem value="paused" className="text-[12px]">Paused</SelectItem>
                           <SelectItem value="completed" className="text-[12px]">Completed</SelectItem>
                         </SelectContent>

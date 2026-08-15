@@ -63,7 +63,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
           </p>
           <div className="mt-10 space-y-3">
             {[
-              { icon: Target, text: "One focused workspace for goals, tasks, and check-ins." },
+              { icon: Target, text: "One focused workspace for goals, milestones, and check-ins." },
               { icon: Sparkles, text: "AI coaching that adapts to your behavior, not generic advice." },
               { icon: Chrome, text: "Sign in with Google in seconds. No passwords to remember." },
             ].map((item) => (
@@ -166,7 +166,7 @@ export function AuthPanel({ mode }: AuthPanelProps) {
             </p>
 
             <div className="mt-6 rounded-md border border-graphite/70 bg-obsidian/40 p-3.5 text-[12px] leading-relaxed text-fog">
-              Your dashboard brings goals, today&apos;s tasks, check-ins, and coaching
+              Your dashboard brings goals, milestones, check-ins, and coaching
               feedback into one focused workspace.
             </div>
           </div>

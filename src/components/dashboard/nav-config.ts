@@ -2,6 +2,7 @@ import {
   CalendarDays,
   CheckCircle2,
   LayoutDashboard,
+  ListChecks,
   Settings,
   Sparkles,
   Target,
@@ -16,8 +17,9 @@ export type NavItem = {
 export const mainNav: NavItem[] = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "Goals", href: "/dashboard/goals", icon: Target },
-  { label: "Tasks", href: "/dashboard/tasks", icon: CheckCircle2 },
+  { label: "Milestones", href: "/dashboard/milestones", icon: ListChecks },
   { label: "Calendar", href: "/dashboard/calendar", icon: CalendarDays },
+  { label: "Check-in", href: "/dashboard/check-in", icon: CheckCircle2 },
   { label: "Insights", href: "/dashboard/insights", icon: Sparkles },
 ];
 

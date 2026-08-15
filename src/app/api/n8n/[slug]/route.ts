@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { config } from "@/lib/config";
 
-const ALLOWED_SLUGS = new Set(["dashboard", "goal-create", "checkin"]);
+const ALLOWED_SLUGS = new Set([
+  "dashboard",
+  "generate-milestones",
+  "goal-create",
+  "checkin",
+  "milestones",
+  "checkin-history",
+  "transcribe",
+]);
 
 async function handle(
   req: NextRequest,
@@ -20,7 +28,10 @@ async function handle(
     );
   }
 
-  const n8nUrl = `${base.replace(/\/$/, "")}/webhook/${slug}`;
+  const n8nUrl = new URL(`${base.replace(/\/$/, "")}/webhook/${slug}`);
+  req.nextUrl.searchParams.forEach((value, key) => {
+    n8nUrl.searchParams.set(key, value);
+  });
   const authorization = req.headers.get("authorization");
   const body = req.method === "POST" ? await req.text() : undefined;
 
@@ -36,7 +47,7 @@ async function handle(
     });
   } catch {
     return NextResponse.json(
-      { success: false, error: `Could not reach the n8n webhook at ${n8nUrl}. Is n8n running?` },
+      { success: false, error: `Could not reach the n8n webhook at ${n8nUrl.toString()}. Is n8n running?` },
       { status: 502 },
     );
   }

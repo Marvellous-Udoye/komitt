@@ -92,7 +92,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           </span>
           <div>
             <p className="text-[13px] font-[510] text-paper">{streak} day streak</p>
-            <p className="text-[11px] text-fog">Keep today&apos;s first task short.</p>
+            <p className="text-[11px] text-fog">Keep the next milestone visible.</p>
           </div>
         </div>
       </div>

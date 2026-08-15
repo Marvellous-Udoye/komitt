@@ -19,6 +19,8 @@ import { UserAvatar } from "@/components/dashboard/user-avatar";
 export default function SettingsPage() {
   const router = useRouter();
   const syncFromN8n = useDashboard((state) => state.syncFromN8n);
+  const notificationHour = useDashboard((state) => state.notificationHour);
+  const setNotificationHour = useDashboard((state) => state.setNotificationHour);
   const [profile, setProfile] = useState(() => {
     const profileUser = getSessionUser();
     return {
@@ -28,7 +30,6 @@ export default function SettingsPage() {
   });
   const [prefs, setPrefs] = useState({
     weekStart: "monday",
-    reminder: "18:00",
     emailReminders: true,
     dailyNudges: true,
     streakNotifications: false,
@@ -133,21 +134,22 @@ export default function SettingsPage() {
               <Separator className="bg-graphite" />
               <div className="flex items-center justify-between gap-6">
                 <div>
-                  <p className="text-[13px] text-mist">Daily reminder time</p>
-                  <p className="mt-1 text-[12px] text-fog">When your check-in reminder fires.</p>
+                  <p className="text-[13px] text-mist">Daily summary time</p>
+                  <p className="mt-1 text-[12px] text-fog">Choose the hour when Komitt should send your daily accountability summary.</p>
                 </div>
                 <Select
-                  value={prefs.reminder}
-                  onValueChange={(value) => setPrefs({ ...prefs, reminder: value })}
+                  value={String(notificationHour)}
+                  onValueChange={(value) => setNotificationHour(Number(value))}
                 >
                   <SelectTrigger className="h-9 w-[140px] rounded-md border-graphite bg-obsidian/40 text-[12px] text-mist">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="border-graphite bg-obsidian text-mist">
-                    <SelectItem value="09:00" className="text-[12px]">09:00</SelectItem>
-                    <SelectItem value="12:00" className="text-[12px]">12:00</SelectItem>
-                    <SelectItem value="18:00" className="text-[12px]">18:00</SelectItem>
-                    <SelectItem value="21:00" className="text-[12px]">21:00</SelectItem>
+                    {Array.from({ length: 24 }, (_, hour) => (
+                      <SelectItem key={hour} value={String(hour)} className="text-[12px]">
+                        {String(hour).padStart(2, "0")}:00
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -204,7 +206,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between gap-6 rounded-lg border border-graphite/70 bg-obsidian/40 p-4">
                 <div>
                   <p className="text-[13px] text-mist">Re-sync dashboard data</p>
-                  <p className="mt-1 text-[12px] text-fog">Pull the latest goals, tasks, and stats from n8n.</p>
+                  <p className="mt-1 text-[12px] text-fog">Pull the latest goals, milestones, check-ins, and stats.</p>
                 </div>
                 <Button
                   variant="outline"

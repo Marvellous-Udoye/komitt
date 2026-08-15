@@ -2,24 +2,33 @@
 
 import { create } from "zustand";
 import {
-  toISODate,
   TODAY,
+  toISODate,
   type Checkin,
-  type CheckinStatus,
   type Goal,
   type GoalStatus,
   type Insight,
-  type Task,
-  type TaskStatus,
+  type Milestone,
+  type MilestoneStatus,
   type WeeklyPoint,
 } from "@/lib/demo-data";
 import {
+  createGoalLive,
+  generateMilestonesLive,
+  getCheckinHistoryLive,
   getDashboard,
   isLiveMode,
+  submitCheckinLive,
+  transcribeLive,
+  type MilestoneDraft,
   type N8nDashboard,
-  type N8nTaskInput,
 } from "@/lib/n8n-client";
-import { fetchDashboardData } from "@/lib/supabase-client";
+import {
+  fetchDashboardData,
+  updateMilestoneStatusDirect,
+  updateNotificationHourDirect,
+} from "@/lib/supabase-client";
+import { getStoredSession } from "@/lib/auth-session";
 
 let counter = 100;
 
@@ -30,203 +39,281 @@ function nextId(prefix: string) {
 
 export type DashboardStatus = "loading" | "ready" | "error";
 
+type GoalCreateInput = {
+  title: string;
+  description: string;
+  applicationTags: string[];
+  milestonesSource: "ai_generated" | "user_provided";
+  targetStartDate: string | null;
+  targetEndDate: string;
+  milestones: MilestoneDraft[];
+};
+
+type CheckinInput = {
+  goalId: string;
+  milestoneId: string;
+  context: string;
+  marksMilestoneComplete: boolean;
+};
+
 type DashboardState = {
   status: DashboardStatus;
   error: string | null;
 
   goals: Goal[];
-  tasks: Task[];
+  milestones: Milestone[];
   checkins: Checkin[];
   insights: Insight[];
   weekly: WeeklyPoint[];
   streak: number;
-  lastCheckinStatus: CheckinStatus | null;
+  notificationHour: number;
 
   liveGoalsCompleted: number | null;
-  liveTasksCompleted: number | null;
+  liveMilestonesCompleted: number | null;
   liveWeeklyConsistency: string | null;
   liveStreak: number | null;
 
-  addGoal: (input: {
+  generateMilestones: (input: {
     title: string;
     description: string;
-    category: string;
-    dueDate: string;
-  }) => void;
+    applicationTags: string[];
+  }) => Promise<MilestoneDraft[]>;
+  createGoal: (input: GoalCreateInput) => Promise<void>;
   setGoalStatus: (id: string, status: GoalStatus) => void;
-  addTask: (input: {
-    title: string;
-    goalId: string;
-    goalTitle: string;
-    priority: Task["priority"];
-    estimate: string;
-    dueDate: string;
-  }) => void;
-  setTaskStatus: (id: string, status: TaskStatus) => void;
-  submitCheckin: (status: CheckinStatus, reflection: string) => string;
-  addInsight: (content: string, category: Insight["category"]) => void;
-  applyGoalBreakdown: (input: {
-    goalId: string;
-    title: string;
-    description: string;
-    category: string;
-    dueDate: string;
-    milestones: number;
-    tasks: N8nTaskInput[];
-  }) => void;
+  setMilestoneStatus: (id: string, status: MilestoneStatus) => Promise<void>;
+  submitCheckin: (input: CheckinInput) => Promise<string>;
+  loadCheckinHistory: (goalId: string, milestoneId: string) => Promise<Checkin[]>;
+  transcribeAudio: (audioBase64: string, mimeType: string) => Promise<string>;
+  setNotificationHour: (hour: number) => Promise<void>;
   syncFromN8n: () => Promise<void>;
   resetDemo: () => void;
 };
 
-export const useDashboard = create<DashboardState>((set) => ({
+function sessionToken() {
+  return getStoredSession()?.accessToken;
+}
+
+function demoMilestonesFor(title: string): MilestoneDraft[] {
+  const base = title.trim() || "Skill goal";
+  return [
+    { title: `Map the ${base} fundamentals`, order_index: 0 },
+    { title: `Build one practical ${base} project`, order_index: 1 },
+    { title: `Apply ${base} in a real-world scenario`, order_index: 2 },
+  ];
+}
+
+function normalizeConsistency(value: string | number | null | undefined) {
+  if (value === null || value === undefined) return null;
+  return typeof value === "number" ? `${value}%` : value;
+}
+
+function applyDashboardPayload(payload: N8nDashboard | undefined) {
+  if (!payload) {
+    return {
+      liveGoalsCompleted: null,
+      liveMilestonesCompleted: null,
+      liveWeeklyConsistency: null,
+      liveStreak: null,
+      deadlineMilestones: [] as Milestone[],
+    };
+  }
+
+  return {
+    liveGoalsCompleted: payload.goals_completed ?? null,
+    liveMilestonesCompleted: payload.milestones_completed ?? null,
+    liveWeeklyConsistency: normalizeConsistency(payload.weekly_consistency),
+    liveStreak: payload.current_streak ?? null,
+    deadlineMilestones: (payload.upcoming_milestone_deadlines ?? []).map((item, index) => ({
+      id: item.id,
+      goalId: item.goal_id ?? "",
+      goalTitle: "-",
+      title: item.title,
+      orderIndex: index,
+      aiGenerated: false,
+      startDate: "",
+      endDate: item.end_date ?? item.due_date ?? "",
+      status: item.status === "completed" || item.status === "in_progress" ? item.status : "pending",
+    })) satisfies Milestone[],
+  };
+}
+
+export const useDashboard = create<DashboardState>((set, get) => ({
   status: "loading",
   error: null,
 
   goals: [],
-  tasks: [],
+  milestones: [],
   checkins: [],
   insights: [],
   weekly: [],
   streak: 0,
-  lastCheckinStatus: null,
+  notificationHour: 7,
 
   liveGoalsCompleted: null,
-  liveTasksCompleted: null,
+  liveMilestonesCompleted: null,
   liveWeeklyConsistency: null,
   liveStreak: null,
 
-  addGoal: (input) =>
-    set((state) => {
-      const goal: Goal = {
-        id: nextId("g"),
+  generateMilestones: async (input) => {
+    if (isLiveMode()) {
+      const result = await generateMilestonesLive(sessionToken(), {
         title: input.title,
         description: input.description,
-        category: input.category || "Personal",
-        status: "active",
-        milestones: 0,
-        milestonesDone: 0,
-        createdAt: TODAY,
-        dueDate: input.dueDate || toISODate(new Date(Date.now() + 30 * 86400000)),
-      };
-      return { goals: [goal, ...state.goals] };
-    }),
-
-  setGoalStatus: (id, status) =>
-    set((state) => ({
-      goals: state.goals.map((goal) =>
-        goal.id === id ? { ...goal, status } : goal,
-      ),
-    })),
-
-  addTask: (input) =>
-    set((state) => {
-      const task: Task = {
-        id: nextId("t"),
-        title: input.title,
-        goalId: input.goalId,
-        goalTitle: input.goalTitle,
-        status: "todo",
-        priority: input.priority,
-        estimate: input.estimate,
-        dueDate: input.dueDate || TODAY,
-      };
-      return { tasks: [task, ...state.tasks] };
-    }),
-
-  setTaskStatus: (id, status) =>
-    set((state) => ({
-      tasks: state.tasks.map((task) =>
-        task.id === id ? { ...task, status } : task,
-      ),
-    })),
-
-  submitCheckin: (status, reflection) => {
-    const feedbackByStatus: Record<CheckinStatus, string> = {
-      yes: "Strong finish. Keep the same first task tomorrow to protect your streak.",
-      partially:
-        "Partial counts — you showed up. Reschedule what slipped to tomorrow morning.",
-      no: "A miss is data, not a verdict. Shrink tomorrow's first task to 20 minutes.",
-    };
-    const feedback = feedbackByStatus[status];
-
-    set((state) => {
-      const checkin: Checkin = {
-        id: nextId("c"),
-        date: TODAY,
-        status,
-        reflection,
-        feedback,
-      };
-      const streak =
-        status === "no" ? 1 : Math.max(1, state.streak + (status === "yes" ? 1 : 0));
-      const insight: Insight = {
-        id: nextId("i"),
-        content:
-          status === "yes"
-            ? "You just extended your streak. Momentum is compounding — protect the pattern tomorrow."
-            : "Logged a check-in. Consistency is measured in check-ins logged, not perfection.",
-        created_at: "Today",
-        category: "coaching",
-      };
-      return {
-        checkins: [checkin, ...state.checkins],
-        streak,
-        lastCheckinStatus: status,
-        insights: [insight, ...state.insights],
-      };
-    });
-
-    return feedback;
+        application_tags: input.applicationTags,
+      });
+      if (result?.milestones?.length) return result.milestones;
+    }
+    return demoMilestonesFor(input.title);
   },
 
-  addInsight: (content, category) =>
-    set((state) => ({
-      insights: [
-        { id: nextId("i"), content, created_at: "Today", category },
-        ...state.insights,
-      ],
-    })),
-
-  applyGoalBreakdown: (input) =>
-    set((state) => {
-      const goal: Goal = {
-        id: input.goalId,
+  createGoal: async (input) => {
+    if (isLiveMode()) {
+      await createGoalLive(sessionToken(), {
         title: input.title,
         description: input.description,
-        category: input.category,
-        status: "active",
+        application_tags: input.applicationTags,
+        milestones_source: input.milestonesSource,
+        target_start_date: input.targetStartDate,
+        target_end_date: input.targetEndDate,
         milestones: input.milestones,
+      });
+      await get().syncFromN8n();
+      return;
+    }
+
+    set((state) => {
+      const goalId = nextId("g");
+      const goal: Goal = {
+        id: goalId,
+        title: input.title,
+        description: input.description,
+        applicationTags: input.applicationTags,
+        milestonesSource: input.milestonesSource,
+        status: input.targetStartDate ? "active" : "not_started",
+        milestones: input.milestones.length,
         milestonesDone: 0,
         createdAt: TODAY,
-        dueDate: input.dueDate || toISODate(new Date(Date.now() + 30 * 86400000)),
+        targetStartDate: input.targetStartDate,
+        targetEndDate: input.targetEndDate,
       };
-
-      const tasks: Task[] = input.tasks
-        .filter((task) => task.id && task.title)
-        .map((task) => {
-          const priority =
-            task.priority === "low" || task.priority === "high"
-              ? task.priority
-              : "medium";
-          return {
-            id: task.id,
-            title: task.title,
-            goalId: goal.id,
-            goalTitle: goal.title,
-            status: "todo" as const,
-            priority,
-            estimate: task.estimated_duration_minutes
-              ? `${task.estimated_duration_minutes} min`
-              : "—",
-            dueDate: task.due_date ?? TODAY,
-          };
-        });
+      const milestones = input.milestones.map((milestone, index) => ({
+        id: nextId("m"),
+        goalId,
+        goalTitle: goal.title,
+        title: milestone.title,
+        orderIndex: milestone.order_index ?? index,
+        aiGenerated: input.milestonesSource === "ai_generated",
+        startDate: milestone.start_date ?? input.targetStartDate ?? "",
+        endDate: milestone.end_date ?? input.targetEndDate,
+        status: "pending" as const,
+      }));
 
       return {
         goals: [goal, ...state.goals],
-        tasks: [...state.tasks, ...tasks],
+        milestones: [...milestones, ...state.milestones],
       };
-    }),
+    });
+  },
+
+  setGoalStatus: (id, status) =>
+    set((state) => ({
+      goals: state.goals.map((goal) => (goal.id === id ? { ...goal, status } : goal)),
+    })),
+
+  setMilestoneStatus: async (id, status) => {
+    const token = sessionToken();
+    if (isLiveMode() && token && token !== "demo-session-token") {
+      await updateMilestoneStatusDirect(token, id, status);
+    }
+    set((state) => {
+      const milestones = state.milestones.map((milestone) =>
+        milestone.id === id ? { ...milestone, status } : milestone,
+      );
+      const goals = state.goals.map((goal) => {
+        const goalMilestones = milestones.filter((milestone) => milestone.goalId === goal.id);
+        return {
+          ...goal,
+          milestones: goalMilestones.length,
+          milestonesDone: goalMilestones.filter((milestone) => milestone.status === "completed").length,
+        };
+      });
+      return { milestones, goals };
+    });
+  },
+
+  submitCheckin: async (input) => {
+    let feedback =
+      "Logged. Keep the next milestone visible, small, and connected to the reason this skill matters.";
+    if (isLiveMode()) {
+      const response = await submitCheckinLive(sessionToken(), {
+        goal_id: input.goalId,
+        milestone_id: input.milestoneId,
+        context: input.context,
+        marks_milestone_complete: input.marksMilestoneComplete,
+      });
+      feedback = response?.feedback ?? feedback;
+      await get().syncFromN8n();
+      return feedback;
+    }
+
+    set((state) => {
+      const milestone = state.milestones.find((item) => item.id === input.milestoneId);
+      const goal = state.goals.find((item) => item.id === input.goalId);
+      const checkin: Checkin = {
+        id: nextId("c"),
+        goalId: input.goalId,
+        goalTitle: goal?.title ?? "-",
+        milestoneId: input.milestoneId,
+        milestoneTitle: milestone?.title ?? "-",
+        context: input.context,
+        feedback,
+        marksMilestoneComplete: input.marksMilestoneComplete,
+        createdAt: new Date().toISOString(),
+      };
+      return {
+        checkins: [checkin, ...state.checkins],
+        streak: Math.max(1, state.streak + 1),
+        milestones: input.marksMilestoneComplete
+          ? state.milestones.map((item) =>
+              item.id === input.milestoneId ? { ...item, status: "completed" as const } : item,
+            )
+          : state.milestones,
+      };
+    });
+    return feedback;
+  },
+
+  loadCheckinHistory: async (goalId, milestoneId) => {
+    if (isLiveMode()) {
+      const result = await getCheckinHistoryLive(sessionToken(), goalId, milestoneId);
+      return (result?.history ?? []).map((item) => ({
+        id: item.id,
+        goalId,
+        goalTitle: get().goals.find((goal) => goal.id === goalId)?.title ?? "-",
+        milestoneId,
+        milestoneTitle: get().milestones.find((milestone) => milestone.id === milestoneId)?.title ?? "-",
+        context: item.context,
+        feedback: item.feedback ?? "",
+        marksMilestoneComplete: item.marks_milestone_complete ?? false,
+        createdAt: item.created_at,
+      }));
+    }
+    return get().checkins.filter((checkin) => checkin.goalId === goalId && checkin.milestoneId === milestoneId);
+  },
+
+  transcribeAudio: async (audioBase64, mimeType) => {
+    const result = await transcribeLive(sessionToken(), { audio_base64: audioBase64, mime_type: mimeType });
+    return result?.text ?? "";
+  },
+
+  setNotificationHour: async (hour) => {
+    const token = sessionToken();
+    const user = getStoredSession()?.user;
+    if (isLiveMode() && token && user?.id) {
+      await updateNotificationHourDirect(token, user.id, hour);
+    }
+    set({ notificationHour: hour });
+  },
 
   syncFromN8n: async () => {
     set({ status: "loading", error: null });
@@ -236,39 +323,24 @@ export const useDashboard = create<DashboardState>((set) => ({
       return;
     }
 
-    const sessionToken =
-      typeof window === "undefined"
-        ? undefined
-        : (() => {
-            const raw = window.localStorage.getItem("komitt.session");
-            if (!raw) return undefined;
-            try {
-              const session = JSON.parse(raw) as { accessToken?: string };
-              return session.accessToken;
-            } catch {
-              return undefined;
-            }
-          })();
-
+    const token = sessionToken();
     let goals: Goal[] = [];
-    let tasks: Task[] = [];
+    let milestones: Milestone[] = [];
     let checkins: Checkin[] = [];
     let insights: Insight[] = [];
     let weekly: WeeklyPoint[] = [];
     let streak = 0;
-    let liveGoalsCompleted: number | null = null;
-    let liveTasksCompleted: number | null = null;
-    let liveWeeklyConsistency: string | null = null;
-    let liveStreak: number | null = null;
+    let notificationHour = 7;
 
-    const supabaseData = sessionToken ? await fetchDashboardData(sessionToken) : null;
+    const supabaseData = token ? await fetchDashboardData(token) : null;
     if (supabaseData) {
       goals = supabaseData.goals;
-      tasks = supabaseData.tasks;
+      milestones = supabaseData.milestones;
       checkins = supabaseData.checkins;
       insights = supabaseData.insights;
       weekly = supabaseData.weekly;
       streak = supabaseData.streak;
+      notificationHour = supabaseData.notificationHour;
     }
 
     let n8nPayload: N8nDashboard | undefined;
@@ -278,44 +350,27 @@ export const useDashboard = create<DashboardState>((set) => ({
       n8nPayload = undefined;
     }
 
-    if (n8nPayload) {
-      for (const deadline of n8nPayload.upcoming_deadlines ?? []) {
-        if (!tasks.some((task) => task.id === deadline.id)) {
-          const priority =
-            deadline.priority === "low" || deadline.priority === "high"
-              ? deadline.priority
-              : "medium";
-          tasks.push({
-            id: deadline.id,
-            title: deadline.title,
-            goalId: "",
-            goalTitle: "—",
-            status: "todo",
-            priority,
-            estimate: "—",
-            dueDate: deadline.due_date ?? TODAY,
-          });
-        }
+    const live = applyDashboardPayload(n8nPayload);
+    for (const deadline of live.deadlineMilestones) {
+      if (!milestones.some((milestone) => milestone.id === deadline.id)) {
+        milestones.push(deadline);
       }
-      liveGoalsCompleted = n8nPayload.goals_completed ?? null;
-      liveTasksCompleted = n8nPayload.tasks_completed ?? null;
-      liveWeeklyConsistency = n8nPayload.weekly_consistency ?? null;
-      liveStreak = n8nPayload.current_streak ?? null;
     }
 
     set({
       status: "ready",
       error: null,
       goals,
-      tasks,
+      milestones,
       checkins,
       insights,
       weekly,
       streak,
-      liveGoalsCompleted,
-      liveTasksCompleted,
-      liveWeeklyConsistency,
-      liveStreak,
+      notificationHour,
+      liveGoalsCompleted: live.liveGoalsCompleted,
+      liveMilestonesCompleted: live.liveMilestonesCompleted,
+      liveWeeklyConsistency: live.liveWeeklyConsistency,
+      liveStreak: live.liveStreak,
     });
   },
 
@@ -324,14 +379,14 @@ export const useDashboard = create<DashboardState>((set) => ({
       status: "ready",
       error: null,
       goals: [],
-      tasks: [],
+      milestones: [],
       checkins: [],
       insights: [],
       weekly: [],
       streak: 0,
-      lastCheckinStatus: null,
+      notificationHour: 7,
       liveGoalsCompleted: null,
-      liveTasksCompleted: null,
+      liveMilestonesCompleted: null,
       liveWeeklyConsistency: null,
       liveStreak: null,
     }),

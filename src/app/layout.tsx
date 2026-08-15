@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     creator: "@komitt",
     title: "Komitt | AI accountability coach",
     description:
-      "An AI execution platform for goals, tasks, check-ins, and coaching feedback.",
+      "An AI skill-accountability platform for goals, milestones, check-ins, and coaching feedback.",
   },
   icons: {
     icon: [

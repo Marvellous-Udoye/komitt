@@ -110,7 +110,7 @@ export default function TwitterImage() {
             komitt.vercel.app
           </span>
           <span style={{ fontSize: 13, color: "#62666d" }}>
-            Goals · Tasks · Check-ins · Coaching
+            Goals · Milestones · Check-ins · Coaching
           </span>
         </div>
       </div>

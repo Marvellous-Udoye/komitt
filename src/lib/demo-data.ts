@@ -1,47 +1,54 @@
-export type GoalStatus = "active" | "paused" | "completed";
+export type GoalStatus = "not_started" | "active" | "paused" | "completed";
 
 export type Goal = {
   id: string;
   title: string;
   description: string;
-  category: string;
+  applicationTags: string[];
+  milestonesSource: "ai_generated" | "user_provided";
   status: GoalStatus;
   milestones: number;
   milestonesDone: number;
   createdAt: string;
-  dueDate: string;
+  targetStartDate: string | null;
+  targetEndDate: string;
 };
 
-export type TaskStatus = "todo" | "in_progress" | "done";
+export type MilestoneStatus = "pending" | "in_progress" | "completed";
 
-export type Task = {
+export type Milestone = {
   id: string;
-  title: string;
   goalId: string;
   goalTitle: string;
-  status: TaskStatus;
-  priority: "low" | "medium" | "high";
-  estimate: string;
-  dueDate: string;
+  title: string;
+  orderIndex: number;
+  aiGenerated: boolean;
+  startDate: string;
+  endDate: string;
+  status: MilestoneStatus;
 };
-
-export type CheckinStatus = "yes" | "partially" | "no";
 
 export type Checkin = {
   id: string;
-  date: string;
-  status: CheckinStatus;
-  reflection: string;
+  goalId: string;
+  goalTitle: string;
+  milestoneId: string;
+  milestoneTitle: string;
+  context: string;
   feedback: string;
+  marksMilestoneComplete: boolean;
+  createdAt: string;
 };
 
-export type InsightCategory = "coaching" | "consistency" | "warning";
+export type InsightCategory = "coaching" | "consistency" | "warning" | "checkin_feedback";
 
 export type Insight = {
   id: string;
   content: string;
   created_at: string;
   category: InsightCategory;
+  goalId?: string | null;
+  milestoneId?: string | null;
 };
 
 export type WeeklyPoint = {
@@ -60,10 +67,10 @@ export function toISODate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-export function formatDate(iso: string) {
-  if (!iso) return "—";
+export function formatDate(iso?: string | null) {
+  if (!iso) return "-";
   const date = new Date(`${iso.slice(0, 10)}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",

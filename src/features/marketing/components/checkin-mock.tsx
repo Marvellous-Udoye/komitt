@@ -49,8 +49,8 @@ export function CheckinMock() {
           <Bot className="size-3.5 text-acid-lime" />
         </span>
         <p className="text-[13px] leading-relaxed text-fog">
-          Good momentum. Tomorrow, schedule the hardest task before 10am — that is
-          when your consistency peaks.
+          Good momentum. Tomorrow, touch the milestone before 10am - that is when
+          your consistency peaks.
         </p>
       </div>
     </div>
